@@ -11,7 +11,7 @@ description = "A program that offers possible disconnections of chemical bonds"
 dependencies = [
      "rdkit",
      "ipython"
-     "pytest"
+     
 ]
 authors = [
     {name = "Octavian Susanu", email = "octavian.susanu@epfl.ch"}
