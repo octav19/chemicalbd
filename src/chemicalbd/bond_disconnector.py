@@ -8,6 +8,7 @@ from rdkit import Chem
 from rdkit.Chem import AllChem
 from rdkit.Chem import Draw
 from rdkit.Chem.Draw import IPythonConsole
+from IPython.display import display
 IPythonConsole.ipython_useSVG=True
 
 def unique_list_reactants (reactants_tuple: tuple) -> float:
