@@ -531,25 +531,35 @@ def aldol (mol: Chem.rdchem.Mol) ->int:
     return 0
 
 def swern_oxidation (mol: Chem.rdchem.Mol) ->int :
+    '''
+    This function receives a mol object and checks if an aldehyde
+    is present. If so, the reactants from which the aldehyde could
+    be formed: a primary alcohol, dimethylsulfoxide, oxalyl chloride
+    and triethylamine (according to Swern oxidation) are displayed
+    and 1 is returned.
+    If the molecule has a certain symmetry, the number of disconnections is reduced.
+    If the pattern is not present, the function returns 0.
+    '''
     if not isinstance(mol, Chem.rdchem.Mol):
         raise TypeError(
             f"Invalid type :{type(mol)}: 'mol'"
             f"Should be passed as a mol object."
         )
-    if mol.HasSubstructMatch(Chem.MolFromSmarts('[CH]=[O]')):
+    if mol.HasSubstructMatch(Chem.MolFromSmarts('[CH]=[O]')): #Verrifies if the compound contains an aldehyde
         dmso = Chem.MolFromSmiles('CS(C)=O')
         et3n = Chem.MolFromSmiles('CCN(CC)CC')
         oxalyl_chloride = Chem.MolFromSmiles('ClC(=O)C(=O)Cl')
         print (f"Aldehyde disconnection spotted")
         print (f"--------------------------------------")
+        #The double bond of the aldehyde is disconnected and the reactants are returned as a list of lists; each list = reactive site
         rxn = AllChem.ReactionFromSmarts('[CH:1]=[O:2]>>[C:1][O:2]')
         reactants = unique_list_reactants(rxn.RunReactants((mol,)))
-        opt = 1
-        for r in reactants:
+        opt = 1 #Parameter to count the number of possible reactants that form the aldehyde
+        for r in reactants: #Reactants are displayed 
             print (f"Option {opt}")
             reactant_1 = [r[0], dmso, et3n, oxalyl_chloride]
             print (f"Reactants")
-            display(Draw.MolsToGridImage(reactant_1))
+            display(Draw.MolsToGridImage(reactant_1, molsPerRow=4))
             opt += 1
             print (f"--------------------------------------")
         print (f"--------------------------------------")
@@ -575,8 +585,8 @@ def disconnections (mol_smiles: str):
         print(f"The molecule contains no known disconnections")
 
 def main ():
-    #mol_smiles = 'CC(=O)C=C(C)CC'
-    #disconnections (mol_smiles)
+    mol_smiles = 'CC(=O)C=C(C)CC'
+    disconnections (mol_smiles)
 
 if __name__ == '__main__':
     main()
