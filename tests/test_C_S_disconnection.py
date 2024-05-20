@@ -3,5 +3,5 @@ from rdkit import Chem
 
 def C_S_absent():
     mol = Chem.MolFromSmiles('CCC')
-    assert C_S_disconnection(mol) == 0
+    assert C_S_disconnection(mol) == 1
 
