@@ -8,7 +8,6 @@ from rdkit import Chem
 from rdkit.Chem import AllChem
 from rdkit.Chem import Draw
 from rdkit.Chem.Draw import IPythonConsole
-from IPython.display import display
 IPythonConsole.ipython_useSVG=True
 
 def unique_list_reactants (reactants_tuple: tuple) -> float:
@@ -58,10 +57,15 @@ def C_S_disconnection (mol: Chem.rdchem.Mol) ->int:
         rxn = AllChem.ReactionFromSmarts('[C^3:1][S:2].[I:3]>>[C:1][I:3].[S:2]') #Searches for the bond pattern and returns reactants
         reactants = unique_list_reactants(rxn.RunReactants((mol,iodine )))       #to make the bond in a list of lists; each list = reactive site
         opt = 1 #Parameter to count the number of possible reactants that form C(sp3 hybridized)-S bonds
+        reactants_returned = [] #List of reactants that are going to be returned
         for r in reactants: #Reactants are displayed
             print(f"Option {opt}")
             reactant_1 = [r[0]]
             reactant_2 = [r[1], potassium_carbonate]
+            #The reactants corresponding to each C(sp3)-S are added in the list that is returned
+            reactants_returned.append(r[0])
+            reactants_returned.append(r[1])
+            reactants_returned.append(potassium_carbonate)
             print(f"Reactant 1")
             display(Draw.MolsToGridImage(reactant_1))
             print(f"Reactant 2")
@@ -69,8 +73,8 @@ def C_S_disconnection (mol: Chem.rdchem.Mol) ->int:
             opt += 1
             print (f"--------------------------------------")
         print(f"--------------------------------------")
-        return 1
-    return 0
+        return [1, reactants_returned]
+    return [0]
     
 def ester_disconnection (mol: Chem.rdchem.Mol) ->int:
     '''
@@ -94,12 +98,17 @@ def ester_disconnection (mol: Chem.rdchem.Mol) ->int:
         hydroxyl = Chem.MolFromSmiles(hydroxyl_smile)
         rxn = AllChem.ReactionFromSmarts('[C^2:1](=[O:2])[O:3][C:4].[O:5]>>[C^2:1](=[O:2])[O:5].[O:3][C:4]') #Searches for the ester and returns
         reactants = unique_list_reactants(rxn.RunReactants((mol, hydroxyl))) #reactants to make the ester in a list of lists; each list = reactive site
+        reactants_returned = [] #List of reactants that are going to be returned
         opt = 1 #Parameter to count the number of possible reactants that form esters
         for r in reactants: #The reactants and the catalyst are displayed
             print(f"Option {opt}")
             reactant_1 = [r[0]]
             reactant_2 = [r[1]]
             catalyst = [proton]
+            #The reactants corresponding to each ester site are added in the list that is returned
+            reactants_returned.append(r[0])
+            reactants_returned.append(r[1])
+            reactants_returned.append(proton)
             print(f"Reactant 1")
             display(Draw.MolsToGridImage(reactant_1))
             print(f"Reactant 2")
@@ -109,8 +118,8 @@ def ester_disconnection (mol: Chem.rdchem.Mol) ->int:
             opt += 1
             print (f"--------------------------------------")
         print (f"--------------------------------------")
-        return 1
-    return 0
+        return [1, reactants_returned]
+    return [0]
 
 def alcohol_beta_double_bond (mol: Chem.rdchem.Mol) ->int:
     '''
@@ -143,6 +152,7 @@ def alcohol_beta_double_bond (mol: Chem.rdchem.Mol) ->int:
         t_butanol = Chem.MolFromSmiles('CC(C)(O)C')
         rxn = AllChem.ReactionFromSmarts('[C:1]=[C:2][CH2:3][C^3:4][OH:5]>>[C:1]#[C:2].[C:3]1[C:4][O:5]1') #Searches for the pattern and returns
         reactants = unique_list_reactants(rxn.RunReactants((mol,))) #reactants to make it in a list of lists; each list = reactive site
+        reactants_returned = [] #List of reactants that are going to be returned
         opt = 1 #Parameter to count the number of possible reactants that form esters
         for r in reactants: #Reactants are displayed
             print(f"Option {opt}")
@@ -162,11 +172,23 @@ def alcohol_beta_double_bond (mol: Chem.rdchem.Mol) ->int:
             display(Draw.MolsToGridImage([hydrogen, palladium, calcium_carbonate, lead], molsPerRow=4 )) #If Z alkene needed
             print (f"If the E geometry is needed for the double bond, then the following conditions are employed")
             display(Draw.MolsToGridImage([sodium, ammonia, t_butanol])) #If E alkene needed
+            #The reactants corresponding to each reactive site are added in the list that is returned
+            reactants_returned.append(r[0])
+            reactants_returned.append(amide)
+            reactants_returned.append(r[1])
+            reactants_returned.append(product_intermediate[0])
+            reactants_returned.append(hydrogen)
+            reactants_returned.append(palladium)
+            reactants_returned.append(calcium_carbonate)
+            reactants_returned.append(lead)
+            reactants_returned.append(sodium)
+            reactants_returned.append(ammonia)
+            reactants_returned.append(t_butanol)
             opt += 1
             print (f"--------------------------------------")
         print (f"--------------------------------------")
-        return 1
-    return 0
+        return [1, reactants_returned]
+    return [0]
 
 def alcohol_beta_triple_bond (mol: Chem.rdchem.Mol) ->int:
     '''
@@ -188,11 +210,15 @@ def alcohol_beta_triple_bond (mol: Chem.rdchem.Mol) ->int:
         amide = Chem.MolFromSmiles(amide_smiles) #trnasformed in mol objects.
         rxn = AllChem.ReactionFromSmarts('[C:1]#[C:2][CH2:3][C^3:4][OH:5]>>[C:1]#[C:2].[C:3]1[C:4][O:5]1') #Searches for the pattern and returns
         reactants = unique_list_reactants(rxn.RunReactants((mol,))) #reactants to make it in a list of lists; each list = reactive site
+        reactants_returned = [] #List of reactants that are going to be returned
         opt = 1 #Parameter to count the number of possible reactants that form esters
         for r in reactants: #Reactants are displayed
             print(f"Option {opt}")
             reactant_1 = [r[0], amide]
             reactant_2 = [r[1]]
+            reactants_returned.append(r[0])
+            reactants_returned.append(amide)
+            reactants_returned.append(r[1])
             print(f"Reactant 1")
             display(Draw.MolsToGridImage(reactant_1))
             print(f"Reactant 2")
@@ -200,8 +226,8 @@ def alcohol_beta_triple_bond (mol: Chem.rdchem.Mol) ->int:
             opt += 1
             print (f"--------------------------------------")
         print (f"--------------------------------------")
-        return 1
-    return 0
+        return [1, reactants_returned]
+    return [0]
 
 def alpha_monocarbonyl_alkylation (mol: Chem.rdchem.Mol):
     '''
@@ -293,7 +319,8 @@ def alpha_monocarbonyl_alkylation (mol: Chem.rdchem.Mol):
         match = 1
     if match == 1:
          print (f"C(sp3)-C(sp3) bond dissociation available in alpha position of carbonyl compound (mono/disubstituted)")
-         print (f"--------------------------------------")   
+         print (f"--------------------------------------")
+    reactants_returned = [] #List of reactants that are going to be returned
     opt = 1 #Parameter to count the number of possible reactants that form the trisubstituted monocarbonyl
     for r in reactants: #Reactants, and also intermediate for the synthesis are displayed
         for reactant in r:
@@ -309,10 +336,18 @@ def alpha_monocarbonyl_alkylation (mol: Chem.rdchem.Mol):
             rxn_intermediate = AllChem.ReactionFromSmarts('[C:1][C:2][O:3][C:4](=[O:5])[C:6].[I:7][C:8]>>[C:1][C:2][O:3][C:4](=[O:5])[C:6][C:8].[I:7]')
             product_intermediate = unique_list_reactants(rxn_intermediate.RunReactants((reactant[0],reactant[1])))
             display(Draw.MolsToGridImage([product_intermediate[0][0]]))
+            #The reactants corresponding to each reactive site are added in the list that is returned
+            reactants_returned.append(reactant[0])
+            reactants_returned.append(sodium_ethoxide)
+            reactants_returned.append(ethanol)
+            reactants_returned.append(reactant[1])
+            reactants_returned.append(product_intermediate[0][0])
             print (f"This product needs to be hydrolyzed using NaOH, then quenched using an acid, and finally heated"
                    f" in order to obtain the target molecule")
             print (f"--------------------------------------")
         print (f"--------------------------------------")
+    return reactants_returned
+        
 
 def alpha_monocarbonyl_alkylation_trisubstituted (mol: Chem.rdchem.Mol):
     '''
@@ -323,8 +358,14 @@ def alpha_monocarbonyl_alkylation_trisubstituted (mol: Chem.rdchem.Mol):
     in the presence of triethyl amine are displayed.
     If the molecule has a certain symmetry, the number of disconnections is reduced.
     '''
+    if not isinstance (mol, Chem.rdchem.Mol):
+        raise TypeError(
+            f" Invalid type {type(mol)}: 'mol'"
+            f" Should be passed as a mol object."
+        )
     triethyl_amine = Chem.MolFromSmiles('CCN(CC)CC')
     iodine = Chem.MolFromSmiles('I')
+    reactants_returned = [] #List of reactants that are going to be returned
     #The pattern desired is searched
     if (
         mol.HasSubstructMatch(Chem.MolFromSmarts('[C^3][CH2^3][C](=[O])[C^3]([C^3])([C^3])[C^3]'))
@@ -340,6 +381,10 @@ def alpha_monocarbonyl_alkylation_trisubstituted (mol: Chem.rdchem.Mol):
                 print (f"Option {opt}")
                 reactant_1 = [r[0], triethyl_amine]
                 reactant_2 = [r[1]]
+                #The reactants corresponding to each reactive site are added in the list that is returned
+                reactants_returned.append(r[0])
+                reactants_returned.append(triethyl_amine)
+                reactants_returned.append(r[1])
                 opt += 1
                 print (f"Reactant 1")
                 display(Draw.MolsToGridImage(reactant_1))
@@ -347,6 +392,7 @@ def alpha_monocarbonyl_alkylation_trisubstituted (mol: Chem.rdchem.Mol):
                 display(Draw.MolsToGridImage(reactant_2))
                 print (f"--------------------------------------")
             print (f"--------------------------------------")
+    return reactants_returned
 
 def alpha_dicarbonyl_alkylation (mol: Chem.rdchem.Mol):
     '''
@@ -362,6 +408,7 @@ def alpha_dicarbonyl_alkylation (mol: Chem.rdchem.Mol):
             f" Invalid type {type(mol)}: 'mol'"
             f" Should be passed as a mol object."
         )
+    reactants_returned = [] #List of reactants that are going to be returned
     if mol.HasSubstructMatch(Chem.MolFromSmarts('[C](=[O])[C^3]([C^3])[C]=[O]')):
         iodine = Chem.MolFromSmiles('I')
         sodium_ethoxide = Chem.MolFromSmiles('[Na+].[O-]CC')
@@ -376,6 +423,11 @@ def alpha_dicarbonyl_alkylation (mol: Chem.rdchem.Mol):
             print (f"Option {opt}")
             reactant_1 = [r[0], sodium_ethoxide, ethanol]
             reactant_2 = [r[1]]
+            #The reactants corresponding to each reactive site are added in the list that is returned
+            reactants_returned.append(r[0])
+            reactants_returned.append(sodium_ethoxide)
+            reactants_returned.append(ethanol)
+            reactants_returned.append(r[1])
             print (f"Reactant 1")
             display(Draw.MolsToGridImage(reactant_1))
             print (f"Reactant 2")
@@ -383,6 +435,7 @@ def alpha_dicarbonyl_alkylation (mol: Chem.rdchem.Mol):
             opt += 1
             print (f"--------------------------------------")
         print (f"--------------------------------------")
+    return reactants_returned
 
 def alpha_carbonyl_alkylation (mol: Chem.rdchem.Mol) ->int:
     '''
@@ -407,14 +460,18 @@ def alpha_carbonyl_alkylation (mol: Chem.rdchem.Mol) ->int:
     carbon are performed
     '''
     if mol.HasSubstructMatch(Chem.MolFromSmarts('[C](=[O])[C^3][C]')):
-        alpha_dicarbonyl_alkylation(mol)
-        alpha_monocarbonyl_alkylation(mol)
-        alpha_monocarbonyl_alkylation_trisubstituted(mol)
-        return 1
-    return 0
+        reactants_returned = [] #List of reactants that are going to be returned
+        reactants_returned.append(alpha_dicarbonyl_alkylation(mol))
+        reactants_returned.append(alpha_monocarbonyl_alkylation(mol))
+        reactants_returned.append(alpha_monocarbonyl_alkylation_trisubstituted(mol))
+        for reactant_list in reactants_returned: #Verrifies if there are empty list of reactants, and removes them
+            if reactant_list == []:
+                reactants_returned.remove(reactant_list)
+        return [1,reactants_returned]
+    return [0]
 
 def dicarbonyl_1_3 (mol: Chem.rdchem.Mol) ->int:
-     '''
+    '''
     This function receives a mol object and checks is the pattern
     1,3 dicarbonyl compound is present. If so,
     the reactants from which the pattern could be formed: an enamine
@@ -424,49 +481,57 @@ def dicarbonyl_1_3 (mol: Chem.rdchem.Mol) ->int:
     If the molecule has a certain symmetry, the number of disconnections is reduced.
     If the pattern is not present, the function returns 0.
     '''
-     if not isinstance (mol, Chem.rdchem.Mol):
+    if not isinstance (mol, Chem.rdchem.Mol):
         raise TypeError(
-            f"Invalid type :{type(mol)}: 'mol'"
-            f"Should be passed as a mol object."
-        )
-     if mol.HasSubstructMatch(Chem.MolFromSmarts('[C](=[O])[C^3][C]=[O]')): #Checks if the 1,3 dicarbonyl pattern is present
-         chlorine = Chem.MolFromSmiles('Cl')
-         oxygen = Chem.MolFromSmiles('O')
-         piperidine = Chem.MolFromSmiles('C1CCNCC1')
-         print (f"1,3 dicarbonyl disconnection available")
-         print (f"--------------------------------------")
-         #Searches for the desired pattern and returns the reactants to make it as a lists of lists; each list = reactive site
-         rxn = AllChem.ReactionFromSmarts(
-             '[C:1](=[O:2])[C^3:3][C:4]=[O:5].[Cl:6].[C^3:8]1[C^3:9][C^3:10][N^3:11][C^3:12][C^3:13]1>>[C:1]([N^3:11]1[C^3:12][C^3:13][C^3:8][C^3:9][C^3:10]1)=[C:3].[Cl:6][C:4]=[O:5].[O:2]')
-         reactants = unique_list_reactants(rxn.RunReactants((mol, chlorine, piperidine)))
-         opt = 1 #Parameter to count the number of possible reactants that form the 1,3 dicarbonyl 
-         for r in reactants:
-             print (f"Option {opt}")
-             reactant_1 = [r[0]]
-             reactant_2 = [r[1]]
-             print (f"Reactant 1")
-             display(Draw.MolsToGridImage(reactant_1))
-             print(f"Reactant 1 could be obtained from the following reactants")
-             #The enamine is disconnected into a carbonyl compound and piperidine, which are also displayed
-             rxn_1 = AllChem.ReactionFromSmarts(
-                 '[C:1]([N:2]1[C^3:3][C^3:4][C^3:5][C^3:6][C^3:7]1)=[C:8].[O:9]>>[C:1](=[O:9])[C:8].[C^3:7]1[N^3:2][C^3:3][C^3:4][C^3:5][C^3:6]1')
-             list_reactants_for_reactant_1 = unique_list_reactants(rxn_1.RunReactants((r[0],oxygen)))
-             reactants_for_reactant_1 = [list_reactants_for_reactant_1[0][0], list_reactants_for_reactant_1[0][1]]
-             display(Draw.MolsToGridImage(reactants_for_reactant_1))
-             print (f"Reactant 2")
-             display(Draw.MolsToGridImage(reactant_2))
-             print (f"Once combined, the reactants give the following intermediate")
-             #The reaction intermediate is formed and is displayed afterwards
-             rxn_intermediate = AllChem.ReactionFromSmarts(
-                 '[C:1]([N:11]1[C^3:12][C^3:13][C^3:8][C^3:9][C^3:10]1)=[C:3].[Cl:6][C:4]=[O:5]>>[C:1]([N^3:11]1[C^3:12][C^3:13][C^3:8][C^3:9][C^3:10]1)=[C:3][C:4]=[O:5].[Cl:6]')
-             intermediate = unique_list_reactants(rxn_intermediate.RunReactants((r[0],r[1])))
-             display(Draw.MolsToGridImage([intermediate[0][0]]))
-             print (f"This intermediate needs to be hydrolyzed in mild acidic environment to give the target molecule")
-             opt += 1
-             print (f"--------------------------------------")
-         print (f"--------------------------------------")
-         return 1
-     return 0
+        f"Invalid type :{type(mol)}: 'mol'"
+        f"Should be passed as a mol object."
+    )
+       
+    if mol.HasSubstructMatch(Chem.MolFromSmarts('[C](=[O])[C^3][C]=[O]')): #Checks if the 1,3 dicarbonyl pattern is present
+        chlorine = Chem.MolFromSmiles('Cl')
+        oxygen = Chem.MolFromSmiles('O')
+        piperidine = Chem.MolFromSmiles('C1CCNCC1')
+        print (f"1,3 dicarbonyl disconnection available")
+        print (f"--------------------------------------")
+        #Searches for the desired pattern and returns the reactants to make it as a lists of lists; each list = reactive site
+        rxn = AllChem.ReactionFromSmarts(
+            '[C:1](=[O:2])[C^3:3][C:4]=[O:5].[Cl:6].[C^3:8]1[C^3:9][C^3:10][N^3:11][C^3:12][C^3:13]1>>[C:1]([N^3:11]1[C^3:12][C^3:13][C^3:8][C^3:9][C^3:10]1)=[C:3].[Cl:6][C:4]=[O:5].[O:2]')
+        reactants = unique_list_reactants(rxn.RunReactants((mol, chlorine, piperidine)))
+        reactants_returned = [] #List of reactants that are going to be returned
+        opt = 1 #Parameter to count the number of possible reactants that form the 1,3 dicarbonyl 
+        for r in reactants:
+            print (f"Option {opt}")
+            reactant_1 = [r[0]]
+            reactant_2 = [r[1]]
+            print (f"Reactant 1")
+            display(Draw.MolsToGridImage(reactant_1))
+            print(f"Reactant 1 could be obtained from the following reactants")
+            #The enamine is disconnected into a carbonyl compound and piperidine, which are also displayed
+            rxn_1 = AllChem.ReactionFromSmarts(
+                '[C:1]([N:2]1[C^3:3][C^3:4][C^3:5][C^3:6][C^3:7]1)=[C:8].[O:9]>>[C:1](=[O:9])[C:8].[C^3:7]1[N^3:2][C^3:3][C^3:4][C^3:5][C^3:6]1')
+            list_reactants_for_reactant_1 = unique_list_reactants(rxn_1.RunReactants((r[0],oxygen)))
+            reactants_for_reactant_1 = [list_reactants_for_reactant_1[0][0], list_reactants_for_reactant_1[0][1]]
+            display(Draw.MolsToGridImage(reactants_for_reactant_1))
+            print (f"Reactant 2")
+            display(Draw.MolsToGridImage(reactant_2))
+            print (f"Once combined, the reactants give the following intermediate")
+            #The reaction intermediate is formed and is displayed afterwards
+            rxn_intermediate = AllChem.ReactionFromSmarts(
+                '[C:1]([N:11]1[C^3:12][C^3:13][C^3:8][C^3:9][C^3:10]1)=[C:3].[Cl:6][C:4]=[O:5]>>[C:1]([N^3:11]1[C^3:12][C^3:13][C^3:8][C^3:9][C^3:10]1)=[C:3][C:4]=[O:5].[Cl:6]')
+            intermediate = unique_list_reactants(rxn_intermediate.RunReactants((r[0],r[1])))
+            display(Draw.MolsToGridImage([intermediate[0][0]]))
+            print (f"This intermediate needs to be hydrolyzed in mild acidic environment to give the target molecule")
+            #The reactants corresponding to each reactive site are added in the list that is returned
+            reactants_returned.append(r[0])
+            reactants_returned.append(list_reactants_for_reactant_1[0][0])
+            reactants_returned.append(list_reactants_for_reactant_1[0][1])
+            reactants_returned.append(r[1])
+            reactants_returned.append(intermediate[0][0])
+            opt += 1
+            print (f"--------------------------------------")
+        print (f"--------------------------------------")
+        return [1, reactants_returned]
+    return [0]
 
 def aldol (mol: Chem.rdchem.Mol) ->int:
     '''
@@ -480,12 +545,13 @@ def aldol (mol: Chem.rdchem.Mol) ->int:
     If the molecule has a certain symmetry, the number of disconnections is reduced.
     If the pattern is not present, the function returns 0.
     '''
-    
+    '''
     if not isinstance(mol, Chem.rdchem.Mol):
         raise TypeError(
             f"Invalid type :{type(mol)}: 'mol'"
             f"Should be passed as a mol object."
         )
+    '''
     
     if mol.HasSubstructMatch(Chem.MolFromSmarts('[C](=[O])[C]=[C]')): #Verrifies if the compound contains the desired pattern
         tmscl = Chem.MolFromSmiles('C[Si](C)(C)Cl')
@@ -496,9 +562,10 @@ def aldol (mol: Chem.rdchem.Mol) ->int:
         print (f"Disconnection specific to aldol reaction available")
         print (f"--------------------------------------")
         #The double bond from the pattern is disconnected and the reactants are returned as a list of lists; each list = reactive site
-        rxn = AllChem.ReactionFromSmarts(
-            '[C:1](=[O:2])[C:3]=[C:4].[C:5][Si:6]([C:7])([C:8])[Cl:9].[O:10]>>[C:1]([O:2][Si:6]([C:5])([C:7])([C:8]))=[C:3].[O:10]=[C:4].[Cl:9]')
+        rxn = AllChem.ReactionFromSmarts('[C:1](=[O:2])[C:3]=[C:4].[C:5][Si:6]([C:7])([C:8])[Cl:9].[O:10]>>[C:1]([O:2][Si:6]([C:5])([C:7])([C:8]))=[C:3].[O:10]=[C:4].[Cl:9]')
+            #'[C:1](=[O:2])[C:3]=[C:4].[C:5][Si:6]([C:7])([C:8])[Cl:9].[O:10]>>[C:1]([O:2][Si:6]([C:5])([C:7])([C:8]))=[C:3].[O:10]=[C:4].[Cl:9]')
         reactants = unique_list_reactants(rxn.RunReactants((mol, tmscl, oxygen)))
+        reactants_returned = [] #List of reactants that are going to be returned
         opt = 1 #Parameter to count the number of possible reactants that form the desired pattern
         for r in reactants: #Reactants and catalyst are displayed
             print (f"Option {opt}")
@@ -525,46 +592,50 @@ def aldol (mol: Chem.rdchem.Mol) ->int:
             display(Draw.MolsToGridImage([intermediate[0][0]]))
             print (f"This intermediate needs to be dehydrated in acidic environment to give the target molecule")
             opt += 1
+            #The reactants corresponding to each reactive site are added in the list that is returned
+            reactants_returned.append(r[0])
+            reactants_returned.append(list_reactants_for_reactant_1[0][0])
+            reactants_returned.append(list_reactants_for_reactant_1[0][1])
+            reactants_returned.append(triethyl_amine)
+            reactants_returned.append(r[1])
+            reactants_returned.append(catalyst)
+            reactants_returned.append(intermediate[0][0])
             print (f"--------------------------------------")
         print (f"--------------------------------------")
-        return 1
-    return 0
+        return [1, reactants_returned]
+    return [0]
 
 def swern_oxidation (mol: Chem.rdchem.Mol) ->int :
-    '''
-    This function receives a mol object and checks if an aldehyde
-    is present. If so, the reactants from which the aldehyde could
-    be formed: a primary alcohol, dimethylsulfoxide, oxalyl chloride
-    and triethylamine (according to Swern oxidation) are displayed
-    and 1 is returned.
-    If the molecule has a certain symmetry, the number of disconnections is reduced.
-    If the pattern is not present, the function returns 0.
-    '''
     if not isinstance(mol, Chem.rdchem.Mol):
         raise TypeError(
             f"Invalid type :{type(mol)}: 'mol'"
             f"Should be passed as a mol object."
         )
-    if mol.HasSubstructMatch(Chem.MolFromSmarts('[CH]=[O]')): #Verrifies if the compound contains an aldehyde
+    if mol.HasSubstructMatch(Chem.MolFromSmarts('[CH]=[O]')):
         dmso = Chem.MolFromSmiles('CS(C)=O')
         et3n = Chem.MolFromSmiles('CCN(CC)CC')
         oxalyl_chloride = Chem.MolFromSmiles('ClC(=O)C(=O)Cl')
         print (f"Aldehyde disconnection spotted")
         print (f"--------------------------------------")
-        #The double bond of the aldehyde is disconnected and the reactants are returned as a list of lists; each list = reactive site
         rxn = AllChem.ReactionFromSmarts('[CH:1]=[O:2]>>[C:1][O:2]')
         reactants = unique_list_reactants(rxn.RunReactants((mol,)))
-        opt = 1 #Parameter to count the number of possible reactants that form the aldehyde
-        for r in reactants: #Reactants are displayed 
+        reactants_returned = [] #List of reactants that are going to be returned
+        opt = 1
+        for r in reactants:
             print (f"Option {opt}")
             reactant_1 = [r[0], dmso, et3n, oxalyl_chloride]
             print (f"Reactants")
             display(Draw.MolsToGridImage(reactant_1, molsPerRow=4))
             opt += 1
+            #The reactants corresponding to each reactive site are added in the list that is returned
+            reactants_returned.append(r[0])
+            reactants_returned.append(dmso)
+            reactants_returned.append(et3n)
+            reactants_returned.append(oxalyl_chloride)
             print (f"--------------------------------------")
         print (f"--------------------------------------")
-        return 1
-    return 0
+        return [1, reactants_returned]
+    return [0]
             
 def disconnections (mol_smiles: str):
     '''
@@ -577,20 +648,25 @@ def disconnections (mol_smiles: str):
     print (f"--------------------------------------")
     print (f"--------------------------------------")
     sum = 0 #Parameter that keeps track of the number of the types of disconnections found in the molecule
+    reactant_list = []
     known_disc = [C_S_disconnection, ester_disconnection, alcohol_beta_double_bond, alcohol_beta_triple_bond,
                  alpha_carbonyl_alkylation, dicarbonyl_1_3, aldol, swern_oxidation]
     for disc in known_disc:
-        sum += disc(mol)
+        reactant_list_temporary = disc(mol)
+        if reactant_list_temporary[0] == 1:
+            reactant_list.append(reactant_list_temporary[1])
+        sum += reactant_list_temporary[0]
     if not sum: #In case no disconnection was found
         print(f"The molecule contains no known disconnections")
+        return 0
+    return reactant_list
 
 def main ():
-    mol_smiles = 'CC(=O)C=C(C)CC'
-    disconnections (mol_smiles)
+    mol_smiles = 'CCCSCCCC'
+    reactant_list = disconnections (mol_smiles)
 
 if __name__ == '__main__':
     main()
-
 
 # In[ ]:
 
