@@ -9,7 +9,7 @@ requires-python = ">=3.10"
 license = {file = "LICENSE"}
 description = "A program that offers possible disconnections of chemical bonds"
 dependencies = [
-    # "rdkit",
+     "rdkit",
 ]
 authors = [
     {name = "Octavian Susanu", email = "octavian.susanu@epfl.ch"}
