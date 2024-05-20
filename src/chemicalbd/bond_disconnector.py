@@ -177,7 +177,7 @@ def alcohol_beta_double_bond (mol: Chem.rdchem.Mol) ->int:
             reactants_returned.append(r[0])
             reactants_returned.append(amide)
             reactants_returned.append(r[1])
-            reactants_returned.append(product_intermediate[0])
+            reactants_returned.append(product_intermediate[0][0])
             reactants_returned.append(hydrogen)
             reactants_returned.append(palladium)
             reactants_returned.append(calcium_carbonate)
@@ -246,6 +246,11 @@ def alpha_monocarbonyl_alkylation (mol: Chem.rdchem.Mol):
     Therefore, this function makes sure that a substituted ketone is present, but
     is not related to another ketone in a 1,3 relationship 
     '''
+    if not isinstance (mol, Chem.rdchem.Mol):
+        raise TypeError(
+            f" Invalid type {type(mol)}: 'mol'"
+            f" Should be passed as a mol object."
+        )
     iodine = Chem.MolFromSmiles('I')
     sodium_ethoxide = Chem.MolFromSmiles('[Na+].[O-]CC')
     ethanol = Chem.MolFromSmiles('CCO')
@@ -518,7 +523,7 @@ def dicarbonyl_1_3 (mol: Chem.rdchem.Mol) ->int:
             print (f"Once combined, the reactants give the following intermediate")
             #The reaction intermediate is formed and is displayed afterwards
             rxn_intermediate = AllChem.ReactionFromSmarts(
-                '[C:1]([N:11]1[C^3:12][C^3:13][C^3:8][C^3:9][C^3:10]1)=[C:3].[Cl:6][C:4]=[O:5]>>[C:1]([N^3:11]1[C^3:12][C^3:13][C^3:8][C^3:9][C^3:10]1)=[C:3][C:4]=[O:5].[Cl:6]')
+                '[C:1]([N:11]1[C^3:12][C^3:13][C^3:8][C^3:9][C^3:10]1)=[C:3].[Cl:6][C:4]=[O:5]>>[C:1](=[N+^3:11]1[C^3:12][C^3:13][C^3:8][C^3:9][C^3:10]1)[C:3][C:4]=[O:5].[Cl:6]')
             intermediate = unique_list_reactants(rxn_intermediate.RunReactants((r[0],r[1])))
             display(Draw.MolsToGridImage([intermediate[0][0]]))
             print (f"This intermediate needs to be hydrolyzed in mild acidic environment to give the target molecule")
@@ -546,13 +551,13 @@ def aldol (mol: Chem.rdchem.Mol) ->int:
     If the molecule has a certain symmetry, the number of disconnections is reduced.
     If the pattern is not present, the function returns 0.
     '''
-    '''
+    
     if not isinstance(mol, Chem.rdchem.Mol):
         raise TypeError(
             f"Invalid type :{type(mol)}: 'mol'"
             f"Should be passed as a mol object."
         )
-    '''
+    
     
     if mol.HasSubstructMatch(Chem.MolFromSmarts('[C](=[O])[C]=[C]')): #Verrifies if the compound contains the desired pattern
         tmscl = Chem.MolFromSmiles('C[Si](C)(C)Cl')
@@ -607,6 +612,15 @@ def aldol (mol: Chem.rdchem.Mol) ->int:
     return [0]
 
 def swern_oxidation (mol: Chem.rdchem.Mol) ->int :
+    '''
+    This function receives a mol object and checks is an
+    aldehyde is present. If so, the reactants from which it
+    can be formed (according to the Swern oxidation): the
+    corresponding primary alcohol, et3n, dmso and oxalyl 
+    chloride are displayed, and 1 is returned.
+    If the molecule has a certain symmetry, the number of disconnections is reduced.
+    If the pattern is not present, the function returns 0.
+    '''
     if not isinstance(mol, Chem.rdchem.Mol):
         raise TypeError(
             f"Invalid type :{type(mol)}: 'mol'"
