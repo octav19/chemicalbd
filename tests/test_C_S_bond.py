@@ -1,4 +1,4 @@
-from chemicalbd.bond_disconnector import C_S_disconnection
+from bond_disconnector import C_S_disconnection
 from rdkit import Chem
 
 def C_S_disconnection_absent():
