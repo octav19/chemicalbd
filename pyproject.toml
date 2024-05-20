@@ -10,6 +10,7 @@ license = {file = "LICENSE"}
 description = "A program that offers possible disconnections of chemical bonds"
 dependencies = [
      "rdkit",
+     "ipython"
 ]
 authors = [
     {name = "Octavian Susanu", email = "octavian.susanu@epfl.ch"}
