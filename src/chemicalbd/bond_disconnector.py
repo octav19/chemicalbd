@@ -11,38 +11,70 @@ from rdkit.Chem.Draw import IPythonConsole
 from IPython.display import display
 IPythonConsole.ipython_useSVG=True
 
-def unique_list_reactants (reactants_tuple: tuple) -> float:
-    '''
-    A tuple of tuples, containing the reactants (as Mol objects) needed to form the target molecule is received.
-    This function returns a list of unique lists of the reactants (as Mol objects),
-    accounting for the symmetry of the molecule.
-    '''
+def unique_list_reactants (reactants_tuple: tuple) -> list:
+    """
+    Processes a tuple of tuples containing reactants (as Mol objects) needed to form a target molecule,
+    and returns a list of unique lists of reactants (as Mol objects), accounting for the symmetry of the molecule.
+
+    Parameters:
+    reactants_tuple (tuple): A tuple of tuples, each containing reactant Mol objects.
+
+    Returns:
+    list: A list of unique lists of reactant Mol objects, with symmetry accounted for.
+
+    Raises:
+    TypeError: If the input is not a tuple of tuples of Mol objects.
+    """
+    # Validate input type
+    if not isinstance(reactants_tuple, tuple) or not all(isinstance(t, tuple) for t in reactants_tuple):
+        raise TypeError(
+            f"Invalid type {type(reactants_tuple)}: 'reactants_tuple' should be a tuple of tuples."
+        )
+    for inner_tuple in reactants_tuple:
+        if not all(isinstance(mol, Chem.rdchem.Mol) for mol in inner_tuple):
+            raise TypeError(
+                "Invalid type in reactants_tuple: all elements should be Mol objects."
+            )
+
     reactants_list = []
     for r in reactants_tuple:   #The tuple of tuples is transformed into a list of lists
-        rxn_site = []           #of reactants (as String objects, using SMILES)
+        rxn_site = []           #of reactants being depicted as SMILES
         for molecule in r:
             rxn_site.append(Chem.MolToSmiles(molecule))
         reactants_list.append(rxn_site)
     reactants_set = {tuple(r) for r in reactants_list} #The list is transformed in a set of tuples, to have unique elements
     reactants_list_unique = [list(r) for r in reactants_set] #The set of tuples is trnasformed into a list of unique lists
     reactants_unique_mol = []
-    for r in reactants_list_unique: #Here, the list of unique list of reactants (as Mol objects) is created
+    for r in reactants_list_unique: #Here, the list of unique list of reactants (depicted as Mol objects) is created
         mols = []
         for smiles in r:
             mols.append(Chem.MolFromSmiles(smiles))
         reactants_unique_mol.append(mols)
     return reactants_unique_mol
     
-def C_S_disconnection (mol: Chem.rdchem.Mol) ->int:
-    '''
-    The function receives a mol object and verrifes if a C(sp3 hybridized)-S bond is present
-    If yes, the reactants from which the bond could be formed: 
-    an alkyl iodide and a thiol in the presence of potassium carbonate are displayed and 1 is returned
-    If the sulfur atom is bonded to two C(sp3 hybridized) atoms, 
-    there are two possible disconnections for each S atom.
-    If the molecule has a certain symmetry, the number of disconnections is reduced.
-    If the bond is not present, the function returns 0.
-    '''
+def C_S_disconnection (mol: Chem.rdchem.Mol) ->list:
+    """
+    Verifies if a C(sp3 hybridized)-S bond is present in the given molecule.
+
+    If a C(sp3)-S bond is present:
+    The function identifies reactants that could form this bond, specifically an alkyl iodide and a thiol
+    in the presence of potassium carbonate.
+    Displays the possible disconnections and returns 1 along with the list of reactants.
+
+    If the sulfur atom is bonded to two C(sp3 hybridized) atoms, two possible disconnections for each S atom are considered.
+    Symmetry in the molecule reduces the number of unique disconnections.
+
+    Parameters:
+    mol (Chem.rdchem.Mol): The molecule to be analyzed.
+
+    Returns:
+    list: [1, reactants_returned] if a C(sp3)-S bond is found, where reactants_returned is a list of reactants.
+    [0] if the bond is not found.
+
+    Raises:
+    TypeError: If the input is not a Chem.rdchem.Mol object.
+    """
+    # Validate input type
     if not isinstance (mol, Chem.rdchem.Mol):
         raise TypeError(
             f" Invalid type {type(mol)}: 'mol'"
@@ -51,6 +83,7 @@ def C_S_disconnection (mol: Chem.rdchem.Mol) ->int:
     if mol.HasSubstructMatch(Chem.MolFromSmarts('[C^3][S]')): #Verifies if the C(sp3 hybridized)-S is present
         print (f"C(sp3)-S disconection available")
         print (f"--------------------------------------")
+        # Define SMILES for necessary compounds
         iodine_smiles = 'I'
         potassium_carbonate_smiles ='C(=O)([O-])[O-].[K+].[K+]'
         iodine = Chem.MolFromSmiles(iodine_smiles)
@@ -77,14 +110,28 @@ def C_S_disconnection (mol: Chem.rdchem.Mol) ->int:
         return [1, reactants_returned]
     return [0]
     
-def ester_disconnection (mol: Chem.rdchem.Mol) ->int:
-    '''
-    The function receives a mol object and verrifes if an ester functional group is present
-    If yes, the reactants from which the ester could be formed: 
-    an alcohol and a carboxylic acid in the presence of strong acid as catalyst are displayed and 1 is returned
-    If the molecule has a certain symmetry, the number of disconnections is reduced.
-    If the ester is not present, the function returns 0.
-    '''
+def ester_disconnection (mol: Chem.rdchem.Mol) ->list:
+    """
+    Verifies if an ester functional group is present in the given molecule.
+
+    If an ester is present:
+    Identifies reactants that could form the ester, specifically an alcohol and a carboxylic acid,
+    in the presence of a strong acid as a catalyst.
+    Displays the possible disconnections and returns 1 along with the list of reactants.
+
+    If the molecule has symmetry, the number of unique disconnections is reduced.
+
+    Parameters:
+    mol (Chem.rdchem.Mol): The molecule to be analyzed.
+
+    Returns:
+    list: [1, reactants_returned] if the ester group is found, where reactants_returned is a list of reactants.
+    [0] if the ester group is not found.
+
+    Raises:
+    TypeError: If the input is not a Chem.rdchem.Mol object.
+    """
+    # Validate input type
     if not isinstance (mol, Chem.rdchem.Mol):
         raise TypeError(
             f" Invalid type {type(mol)}: 'mol'"
@@ -93,6 +140,7 @@ def ester_disconnection (mol: Chem.rdchem.Mol) ->int:
     if mol.HasSubstructMatch(Chem.MolFromSmarts('[C^2](=[O])[O][C]')): #Verifies if an ester is present 
         print (f"Ester disconnection available")
         print (f"--------------------------------------")
+        # Define SMILES for necessary compounds
         proton_smiles = '[H+]'
         proton = Chem.MolFromSmiles(proton_smiles)
         hydroxyl_smile = 'O'
@@ -122,18 +170,31 @@ def ester_disconnection (mol: Chem.rdchem.Mol) ->int:
         return [1, reactants_returned]
     return [0]
 
-def alcohol_beta_double_bond (mol: Chem.rdchem.Mol) ->int:
-    '''
-    The function receives a mol object and verrifes if a pattern alcohol beta olefin is present
-    If yes, the reactants from which the pattern could be formed: 
-    a terminal alkyne in the presence of a strong base and an expoxide are displayed.
-    The intermediate product of the synthesis, and the hydrogenation condition to obtain
-    the target molecule are also displayed.
-    1 is returned.
-    If the molecule has a certain symmetry, the number of disconnections is reduced.
-    If the pattern is not present, the function returns 0.
-    '''
-    if not isinstance (mol, Chem.rdchem.Mol):
+def alcohol_beta_double_bond (mol: Chem.rdchem.Mol) ->list:
+    """
+    Verifies if a pattern of a primary alcohol with a beta double bond is present in the given molecule.
+
+    If the pattern is present:
+    Identifies reactants that could form the pattern, specifically a terminal alkyne in the presence 
+    of a strong base and an epoxide.
+    Displays the reactants, the intermediate product of the synthesis and the hydrogenation
+    conditions required to obtain the target molecule.
+    Returns 1 along with the list of reactants, intermediate and conditions.
+
+    If the molecule has a certain symmetry, the number of unique disconnections is reduced.
+
+    Parameters:
+    mol (Chem.rdchem.Mol): The molecule to be analyzed.
+
+    Returns:
+    list: [1, reactants_returned] if the pattern is found, where reactants_returned is a list of reactants.
+    [0] if the pattern is not found.
+
+    Raises:
+    TypeError: If the input is not a Chem.rdchem.Mol object.
+    """
+    # Validate input type
+    if not isinstance(mol, Chem.rdchem.Mol):
         raise TypeError(
             f"Invalid type :{type(mol)}: 'mol'"
             f"Should be passed as a mol object."
@@ -141,6 +202,7 @@ def alcohol_beta_double_bond (mol: Chem.rdchem.Mol) ->int:
     if mol.HasSubstructMatch(Chem.MolFromSmarts('[C^2]=[C^2][CH2][C^3][OH]')): #Verifies if the pattern is present
         print (f"Primary alcohol with beta alkene disconnection available")
         print (f"--------------------------------------")
+        # Define SMILES for necessary compounds
         amide_smiles = '[Na+].[NH2-]' #Starting from here, the SMILES of all the compounds needed are defined, and are
         amide = Chem.MolFromSmiles(amide_smiles) #trnasformed in mol objects.
         hydrogen_smiles = '[H][H]'
@@ -191,14 +253,28 @@ def alcohol_beta_double_bond (mol: Chem.rdchem.Mol) ->int:
         return [1, reactants_returned]
     return [0]
 
-def alcohol_beta_triple_bond (mol: Chem.rdchem.Mol) ->int:
-    '''
-    The function receives a mol object and verrifes if a pattern alcohol beta alkyne is present
-    If yes, the reactants from which the pattern could be formed: 
-    a terminal alkyne in the presence of a strong base and an expoxide are displayed and 1 is returned.
-    If the molecule has a certain symmetry, the number of disconnections is reduced.
-    If the pattern is not present, the function returns 0.
-    '''
+def alcohol_beta_triple_bond (mol: Chem.rdchem.Mol) ->list:
+    """
+    Verifies if a pattern of a primary alcohol with a beta alkyne is present in the given molecule.
+
+    If the pattern is present:
+    Identifies reactants that could form the pattern, specifically a terminal alkyne in the presence
+    of a strong base and an epoxide.
+    Displays the reactants and returns 1 along with the list of reactants.
+
+    If the molecule has symmetry, the number of unique disconnections is reduced.
+
+    Parameters:
+    mol (Chem.rdchem.Mol): The molecule to be analyzed.
+
+    Returns:
+    list: [1, reactants_returned] if the pattern is found, where reactants_returned is a list of reactants.
+    [0] if the pattern is not found.
+
+    Raises:
+    TypeError: If the input is not a Chem.rdchem.Mol object.
+    """
+    # Validate input type
     if not isinstance (mol, Chem.rdchem.Mol):
         raise TypeError(
             f"Invalid type :{type(mol)}: 'mol'"
@@ -207,6 +283,7 @@ def alcohol_beta_triple_bond (mol: Chem.rdchem.Mol) ->int:
     if mol.HasSubstructMatch(Chem.MolFromSmarts('[C]#[C][CH2][C^3][OH]')): #Verifies if the pattern is present
         print (f"Primary alcohol with beta alkyne disconnection available")
         print (f"--------------------------------------")
+        # Define SMILES for necessary compounds
         amide_smiles = '[Na+].[NH2-]' #Starting from here, the SMILES of all the compounds needed are defined, and are
         amide = Chem.MolFromSmiles(amide_smiles) #trnasformed in mol objects.
         rxn = AllChem.ReactionFromSmarts('[C:1]#[C:2][CH2:3][C^3:4][OH:5]>>[C:1]#[C:2].[C:3]1[C:4][O:5]1') #Searches for the pattern and returns
@@ -230,43 +307,50 @@ def alcohol_beta_triple_bond (mol: Chem.rdchem.Mol) ->int:
         return [1, reactants_returned]
     return [0]
 
-def alpha_monocarbonyl_alkylation (mol: Chem.rdchem.Mol):
-    '''
-    The function receives a mol object and verrifes all patterns 
-    for a mono/disubstituted (C(sp3)-C(sp3)) ketone in the alpha position.
-    If the pattern is found, the reactants from which the bond
-    corresponding to the substitution: the ethyl acetoacetonate in the
-    presence of sodium ethoxide and ethanol, and alkyl iodide, are displayed,
-    together with the intermediate of the reaction.
-    If the molecule has a certain symmetry, the number of disconnections is reduced.
-    The reason for which all patterns need to be searched is:
-    if the compound has in fact a 1,3 dicarbonyl pattern that is subtituted in common alpha
-    carbon of the two dicarbonyls, another reaction is used for the substitution
-    (the presence of the acetylacetate is no longer needed).
-    Therefore, this function makes sure that a substituted ketone is present, but
-    is not related to another ketone in a 1,3 relationship 
-    '''
+def alpha_monocarbonyl_alkylation (mol: Chem.rdchem.Mol) ->list:  
+    """
+    Verifies and identifies patterns of a mono/disubstituted ketone (C(sp3)-C(sp3)) in the alpha position within a given molecule.
+
+    If such a pattern is found:
+    Identifies reactants from which the bond corresponding to the substitution could be formed: ethyl acetoacetate in the presence of sodium ethoxide and
+    ethanol, and alkyl iodide.
+    Displays the reactants along with the intermediate of the reaction.
+    Ensures that no alpha subtituted 1,3-dicarbonyl pattern is present in the molecule, as this would require a different reaction to form 
+    the target molecule.
+    Ensures that, if the molecule has a certain symmetry, the number of disconnections is reduced.
+
+    Parameters:
+    mol (Chem.rdchem.Mol): The molecule to be analyzed.
+
+    Returns:
+    list: A list of reactants and intermediates if the pattern is found, or an empty list if the pattern is not found.
+
+    Raises:
+    TypeError: If the input is not a Chem.rdchem.Mol object.
+    """
+    # Validate input type
     if not isinstance (mol, Chem.rdchem.Mol):
         raise TypeError(
             f" Invalid type {type(mol)}: 'mol'"
             f" Should be passed as a mol object."
         )
+    # Define SMILES for necessary compounds
     iodine = Chem.MolFromSmiles('I')
     sodium_ethoxide = Chem.MolFromSmiles('[Na+].[O-]CC')
     ethanol = Chem.MolFromSmiles('CCO')
     ethyl_fumarate = Chem.MolFromSmiles('C(=O)OCC')
     match = 0 #Parameter that checks if at leas one of the patterns is found
     reactants = []
-    '''
-    reactants is a list (called let's say primary) of lists (secondary) of lists (tertiary);
-    Each secondary list represents all reactive sites of one type (e.g all monocarbonyl sites that are
-    monosubstituted both on the left side and right side)
-    Each tertiary list represents a reactive site, and contains the reactants from which
-    that site could be formed
-    Now, all possible patterns for a mono/disubstituted monoketones are searched for.
-    Always linking the ketone position 3 with a C(sp3) ensures that a 1,3 dicarbonyl
-    is not spotted.
-    '''
+
+    #reactants is a list (called let's say primary) of lists (secondary) of lists (tertiary);
+    #Each secondary list represents all reactive sites of one type (e.g all monocarbonyl sites that are
+    #monosubstituted both on the left side and right side)
+    #Each tertiary list represents a reactive site, and contains the reactants from which
+    #that site could be formed
+    #Now, all possible patterns for a mono/disubstituted monoketones are searched for.
+    #Always linking the ketone position 3 with a C(sp3) ensures that a 1,3 dicarbonyl
+    #is not spotted.
+    
     #Pattern monosubstituted (left) monosubstituted (right) ketone
     if mol.HasSubstructMatch(Chem.MolFromSmarts('[C^3][CH2^3][C](=[O])[CH2^3][C^3]')):
         rxn_1 = AllChem.ReactionFromSmarts(
@@ -323,7 +407,7 @@ def alpha_monocarbonyl_alkylation (mol: Chem.rdchem.Mol):
         reactants_8 = unique_list_reactants(rxn_8.RunReactants((mol,ethyl_fumarate,iodine)))
         reactants.append(reactants_8)
         match = 1
-    if match == 1:
+    if match == 1: #Checks if at least one pattern is found
          print (f"C(sp3)-C(sp3) bond dissociation available in alpha position of carbonyl compound (mono/disubstituted)")
          print (f"--------------------------------------")
     reactants_returned = [] #List of reactants that are going to be returned
@@ -355,20 +439,32 @@ def alpha_monocarbonyl_alkylation (mol: Chem.rdchem.Mol):
     return reactants_returned
         
 
-def alpha_monocarbonyl_alkylation_trisubstituted (mol: Chem.rdchem.Mol):
-    '''
-    The function receives a mol object and verrifes if the alpha carbon 
-    of a ketone is trisubstituted
-    If yes, the reactants from which the bond could be formed: 
-    an alkyl iodide and the non-substituted ketone,
-    in the presence of triethyl amine are displayed.
-    If the molecule has a certain symmetry, the number of disconnections is reduced.
-    '''
+def alpha_monocarbonyl_alkylation_trisubstituted (mol: Chem.rdchem.Mol) ->list:
+    """
+    Verifies and identifies patterns of a trisubstituted ketone in the alpha position within a given molecule.
+
+    If such a pattern is found:
+    Identifies reactants from which the bond corresponding to the substitution could be formed: an alkyl iodide and the non-substituted ketone, in the 
+    presence of triethyl amine.
+    Displays the reactants.
+    Ensures that, if the molecule has a certain symmetry, the number of disconnections is reduced.
+
+    Parameters:
+    mol (Chem.rdchem.Mol): The molecule to be analyzed.
+
+    Returns:
+    list: A list of reactants if the pattern is found, or an empty list if the pattern is not found.
+
+    Raises:
+    TypeError: If the input is not a Chem.rdchem.Mol object.
+    """
+    # Validate input type
     if not isinstance (mol, Chem.rdchem.Mol):
         raise TypeError(
             f" Invalid type {type(mol)}: 'mol'"
             f" Should be passed as a mol object."
         )
+    # Define SMILES for necessary compounds
     triethyl_amine = Chem.MolFromSmiles('CCN(CC)CC')
     iodine = Chem.MolFromSmiles('I')
     reactants_returned = [] #List of reactants that are going to be returned
@@ -400,15 +496,26 @@ def alpha_monocarbonyl_alkylation_trisubstituted (mol: Chem.rdchem.Mol):
             print (f"--------------------------------------")
     return reactants_returned
 
-def alpha_dicarbonyl_alkylation (mol: Chem.rdchem.Mol):
-    '''
-    The function receives a mol object and verrifes if the alpha carbon 
-    of a 1,3-dicarbonyl compound is substituted
-    If yes, the reactants from which the bond could be formed: 
-    an alkyl iodide and the non-substituted 1,3-dicarbonyl compound,
-    in the presence of sodium ethoxide and ethanol are displayed.
-    If the molecule has a certain symmetry, the number of disconnections is reduced.
-    '''
+def alpha_dicarbonyl_alkylation (mol: Chem.rdchem.Mol) ->list:
+    """
+    Verifies and identifies the pattern of an alpha substituted 1,3-dicarbonyl compound within a given molecule.
+
+    If such a pattern is found:
+    Identifies reactants from which the bond corresponding to the substitution could be formed: an alkyl iodide and the non-substituted 1,3-dicarbonyl
+    compound, in the presence of sodium ethoxide and ethanol.
+    Displays the reactants.
+    Ensures that, if the molecule has certain symmetry, the number of disconnections is reduced.
+
+    Parameters:
+    mol (Chem.rdchem.Mol): The molecule to be analyzed.
+
+    Returns:
+    list: A list of reactants if the pattern is found, or an empty list if the pattern is not found.
+
+    Raises:
+    TypeError: If the input is not a Chem.rdchem.Mol object.
+    """
+    # Validate input type
     if not isinstance (mol, Chem.rdchem.Mol):
         raise TypeError(
             f" Invalid type {type(mol)}: 'mol'"
@@ -416,6 +523,7 @@ def alpha_dicarbonyl_alkylation (mol: Chem.rdchem.Mol):
         )
     reactants_returned = [] #List of reactants that are going to be returned
     if mol.HasSubstructMatch(Chem.MolFromSmarts('[C](=[O])[C^3]([C^3])[C]=[O]')):
+        # Define SMILES for necessary compounds
         iodine = Chem.MolFromSmiles('I')
         sodium_ethoxide = Chem.MolFromSmiles('[Na+].[O-]CC')
         ethanol = Chem.MolFromSmiles('CCO')
@@ -443,50 +551,74 @@ def alpha_dicarbonyl_alkylation (mol: Chem.rdchem.Mol):
         print (f"--------------------------------------")
     return reactants_returned
 
-def alpha_carbonyl_alkylation (mol: Chem.rdchem.Mol) ->int:
-    '''
-    This function receives a mol object and checks is the pattern
-    ketone substituted in the alpha position is present. If so,
-    the reactants from which the pattern could be formed are 
-    presented and 1 is returned.
-    The function uses different reactions to form mono/di-substituted
-    ketones, trisubstituted ketones and mono/disubstituted 1,3 dicarbonyl
-    compounds
-    If the molecule has a certain symmetry, the number of disconnections is reduced.
-    If the pattern is not present, the function returns 0.
-    '''
+def alpha_carbonyl_alkylation (mol: Chem.rdchem.Mol) ->list:
+    """
+    Checks for the presence of a ketone substituted in the alpha position within a given molecule.
+
+    If such a pattern is found:
+    Identifies reactants from which the pattern could be formed.
+    Utilizes different reactions to form mono/di-substituted ketones, trisubstituted ketones, and mono/disubstituted 1,3-dicarbonyl compounds.
+    Displays the reactants from which the target molecule could be formed, together with potential
+    reaction intermediates.
+    Ensures that, if the molecule has a certain symmetry, the number of disconnections is reduced.
+    Returns a list containing 1 and the reactants.
+
+    If the pattern is not present:
+    Returns a list containing 0.
+
+    Parameters:
+    mol (Chem.rdchem.Mol): The molecule to be analyzed.
+
+    Returns:
+    list: [1, reactants_returned] if the pattern is found, where reactants_returned is a list of reactants.
+    [0] if the pattern is not found.
+
+    Raises:
+    TypeError: If the input is not a Chem.rdchem.Mol object.
+    """
+    # Validate input type
     if not isinstance (mol, Chem.rdchem.Mol):
         raise TypeError(
             f"Invalid type :{type(mol)}: 'mol'"
             f"Should be passed as a mol object."
         )
-    '''
-    It is checked if the compound contains the pattern of carbonyl with alpha substituted carbon.
-    If so, the functions corresponding to each type of disconnection of carbonyl with alpha substituted
-    carbon are performed
-    '''
+    #It is checked if the compound contains the pattern of carbonyl with alpha substituted carbon.
+    #If so, the functions corresponding to each type of disconnection of carbonyl with alpha substituted
+    #carbon are performed
     if mol.HasSubstructMatch(Chem.MolFromSmarts('[C](=[O])[C^3][C]')):
         reactants_returned = [] #List of reactants that are going to be returned
         reactants_returned.append(alpha_dicarbonyl_alkylation(mol))
         reactants_returned.append(alpha_monocarbonyl_alkylation(mol))
         reactants_returned.append(alpha_monocarbonyl_alkylation_trisubstituted(mol))
-        for reactant_list in reactants_returned: #Verrifies if there are empty list of reactants, and removes them
-            if reactant_list == []:
-                reactants_returned.remove(reactant_list)
-        return [1,reactants_returned]
+        reactants_returned = [r for r in reactants_returned if r] #Verrifies if there are empty list of reactants, and removes it
+        return [1, reactants_returned]
     return [0]
 
-def dicarbonyl_1_3 (mol: Chem.rdchem.Mol) ->int:
-    '''
-    This function receives a mol object and checks is the pattern
-    1,3 dicarbonyl compound is present. If so,
-    the reactants from which the pattern could be formed: an enamine
-    and an acyl chloride are presented and 1 is returned.
-    Also, the starting materials to form the enamine: a carbonyl and
-    piperidine are displayed.
-    If the molecule has a certain symmetry, the number of disconnections is reduced.
-    If the pattern is not present, the function returns 0.
-    '''
+def dicarbonyl_1_3 (mol: Chem.rdchem.Mol) ->list:
+    """
+    Checks for the presence of a 1,3-dicarbonyl compound within a given molecule.
+
+    If such a pattern is found:
+    Identifies reactants from which the pattern could be formed: an enamine and an acyl chloride.
+    Displays the enamine the starting materials to form the enamine: a carbonyl and piperidine,
+    the acyl chloride and the reaction intermediate.
+    Ensures that, if the molecule has certain symmetry, the number of disconnections is reduced.
+    Returns a list containing 1 and the reactants.
+
+    If the pattern is not present:
+    Returns a list containing 0.
+
+    Parameters:
+    mol (Chem.rdchem.Mol): The molecule to be analyzed.
+
+    Returns:
+    list: [1, reactants_returned] if the pattern is found, where reactants_returned is a list of reactants.
+    [0] if the pattern is not found.
+
+    Raises:
+    TypeError: If the input is not a Chem.rdchem.Mol object.
+    """
+    # Validate input type
     if not isinstance (mol, Chem.rdchem.Mol):
         raise TypeError(
         f"Invalid type :{type(mol)}: 'mol'"
@@ -494,6 +626,7 @@ def dicarbonyl_1_3 (mol: Chem.rdchem.Mol) ->int:
     )
        
     if mol.HasSubstructMatch(Chem.MolFromSmarts('[C](=[O])[C^3][C]=[O]')): #Checks if the 1,3 dicarbonyl pattern is present
+        # Define SMILES for necessary compounds
         chlorine = Chem.MolFromSmiles('Cl')
         oxygen = Chem.MolFromSmiles('O')
         piperidine = Chem.MolFromSmiles('C1CCNCC1')
@@ -539,27 +672,40 @@ def dicarbonyl_1_3 (mol: Chem.rdchem.Mol) ->int:
         return [1, reactants_returned]
     return [0]
 
-def aldol (mol: Chem.rdchem.Mol) ->int:
-    '''
-    This function receives a mol object and checks is a cabonyl
-    compound followed by a double bond is present. If so,
-    the reactants from which the pattern could be formed: a silyl ether
-    and a carbonyl compound, with TiCl4 as catalyst are displayed together
-    with the rxn intermediate and 1 is returned.
-    The starting materials to form the silyl ether: a carbonyl in the presence
-    of Et3N and TMSCl are also displayed.
-    If the molecule has a certain symmetry, the number of disconnections is reduced.
-    If the pattern is not present, the function returns 0.
-    '''
-    
+def aldol (mol: Chem.rdchem.Mol) ->list:
+    """
+    Checks for the presence of a carbonyl compound followed by a double bond within a given molecule.
+
+    If such a pattern is found:
+    Identifies and displays reactants from which the pattern could be formed: a silyl enol ether and a carbonyl compound,
+    with TiCl4, also displayed, as a catalyst.
+    Displays the starting materials to form the silyl enol ether: a carbonyl in the presence of Et3N and TMSCl.
+    Displays the reaction intermediate.
+    Ensures that, if the molecule has certain symmetry, the number of disconnections is reduced.
+    Returns a list containing 1 and the reactants.
+
+    If the pattern is not present:
+    Returns a list containing 0.
+
+    Parameters:
+    mol (Chem.rdchem.Mol): The molecule to be analyzed.
+
+    Returns:
+    list: [1, reactants_returned] if the pattern is found, where reactants_returned is a list of reactants.
+    [0] if the pattern is not found.
+
+    Raises:
+    TypeError: If the input is not a Chem.rdchem.Mol object.
+    """
+    # Validate input type
     if not isinstance(mol, Chem.rdchem.Mol):
         raise TypeError(
             f"Invalid type :{type(mol)}: 'mol'"
             f"Should be passed as a mol object."
         )
     
-    
     if mol.HasSubstructMatch(Chem.MolFromSmarts('[C](=[O])[C]=[C]')): #Verrifies if the compound contains the desired pattern
+        # Define SMILES for necessary compounds
         tmscl = Chem.MolFromSmiles('C[Si](C)(C)Cl')
         triethyl_amine = Chem.MolFromSmiles('CCN(CC)(CC)')
         oxygen = Chem.MolFromSmiles('O')
@@ -612,21 +758,36 @@ def aldol (mol: Chem.rdchem.Mol) ->int:
     return [0]
 
 def swern_oxidation (mol: Chem.rdchem.Mol) ->int :
-    '''
-    This function receives a mol object and checks is an
-    aldehyde is present. If so, the reactants from which it
-    can be formed (according to the Swern oxidation): the
-    corresponding primary alcohol, et3n, dmso and oxalyl 
-    chloride are displayed, and 1 is returned.
-    If the molecule has a certain symmetry, the number of disconnections is reduced.
-    If the pattern is not present, the function returns 0.
-    '''
+    """
+    Checks for the presence of an aldehyde within a given molecule.
+
+    If an aldehyde is present:
+    Identifies the reactants from which the aldehyde could be formed using the Swern oxidation:
+    the corresponding primary alcohol, Et3N, DMSO, and oxalyl chloride.
+    Displays these reactants.
+    Returns a list containing 1 and the reactants.
+
+    If the pattern is not present:
+    Returns a list containing 0.
+
+    Parameters:
+    mol (Chem.rdchem.Mol): The molecule to be analyzed.
+
+    Returns:
+    list: [1, reactants_returned] if the pattern is found, where reactants_returned is a list of reactants.
+    [0] if the pattern is not found.
+
+    Raises:
+    TypeError: If the input is not a Chem.rdchem.Mol object.
+    """
+    # Validate input type
     if not isinstance(mol, Chem.rdchem.Mol):
         raise TypeError(
             f"Invalid type :{type(mol)}: 'mol'"
             f"Should be passed as a mol object."
         )
     if mol.HasSubstructMatch(Chem.MolFromSmarts('[CH]=[O]')):
+        # Define SMILES for necessary compounds
         dmso = Chem.MolFromSmiles('CS(C)=O')
         et3n = Chem.MolFromSmiles('CCN(CC)CC')
         oxalyl_chloride = Chem.MolFromSmiles('ClC(=O)C(=O)Cl')

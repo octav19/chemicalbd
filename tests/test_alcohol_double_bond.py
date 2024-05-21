@@ -1,26 +1,58 @@
+"""
+Tests for the `alcohol_beta_double_bond` function from `chemicalbd.bond_disconnector` module.
+
+The `alcohol_beta_double_bond` function is tested under different scenarios to ensure its correctness.
+
+Test Cases:
+Test in the case the pattern is absent.
+Test in the case the function receives an input different from a Mol object.
+Test in the case the pattern is present.
+
+"""
+
 from chemicalbd.bond_disconnector import alcohol_beta_double_bond
 from rdkit import Chem
 from IPython.display import display
 from unittest.mock import patch
 import pytest
 
-'''
-The alcohol_beta_double_bond function is
-tested.
-'''
 #Test in the case the pattern is absent
 def test_alcohol_beta_double_bond_absent():
+    """
+    Test the behavior of `alcohol_beta_double_bond` function when the pattern is absent.
+
+    Verifies that the function returns [0] when the pattern is not found in the molecule.
+
+    Returns:
+    None
+    """
     mol = Chem.MolFromSmiles('CCC')
     assert alcohol_beta_double_bond(mol) == [0]
 
 #Test in the case the function receives an input different from a mol object
 def test_alcohol_beta_double_bond_invalid ():
+    """
+    Test the behavior of `alcohol_beta_double_bond` function when an invalid input is provided.
+
+    Verifies that the function raises a TypeError when a non-Mol object is passed as input.
+
+    Returns:
+    None
+    """
     mol = 'Ups'
     with pytest.raises(TypeError):
         alcohol_beta_double_bond(mol)
 
 #Test in the case the pattern is present
 def test_alcohol_beta_double_bond_present():
+    """
+    Test the behavior of `alcohol_beta_double_bond` function when the pattern is present.
+
+    Verifies that the function correctly identifies the pattern and returns the expected list of reactants.
+
+    Returns:
+    None
+    """
     mol = Chem.MolFromSmiles('C=CCCO')
     with patch('IPython.display.display') as mock_display: #display is a function for IPython; as the tests are done in Python, the function is transformed
         mock_display.side_effect = lambda *args, **kwargs: None #in a function that does nothing, so that errors do not appear

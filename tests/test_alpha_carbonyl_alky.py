@@ -1,26 +1,58 @@
+"""
+Tests for the `alpha_carbonyl_alkylation` function from `chemicalbd.bond_disconnector` module.
+
+The `alpha_carbonyl_alkylation` function is tested under different scenarios to ensure its correctness.
+
+Test Cases:
+Test in the case the pattern is absent.
+Test in the case the function receives an input different from a Mol object.
+Test in the case the pattern is present.
+
+"""
+
 from chemicalbd.bond_disconnector import alpha_carbonyl_alkylation
 from rdkit import Chem
 from IPython.display import display
 from unittest.mock import patch
 import pytest
 
-'''
-The alpha_carbonyl_alkylation function is
-tested.
-'''
 #Test in the case the pattern is absent
 def test_alpha_carbonyl_alkylation_absent():
+    """
+    Test the behavior of `alpha_carbonyl_alkylation` function when the pattern is absent.
+
+    Verifies that the function returns [0] when the pattern is not found in the molecule.
+
+    Returns:
+    None
+    """
     mol = Chem.MolFromSmiles('CCC')
     assert alpha_carbonyl_alkylation(mol) == [0]
 
 #Test in the case the function receives an input different from a mol object
 def test_alpha_carbonyl_alkylation_invalid ():
+    """
+    Test the behavior of `alpha_carbonyl_alkylation` function with invalid input.
+
+    Verifies that the function raises a TypeError when a non-Mol object is passed as input.
+
+    Returns:
+    None
+    """
     mol = 'Ups'
     with pytest.raises(TypeError):
         alpha_carbonyl_alkylation(mol)
 
 #Test in the case the pattern is present
 def test_alpha_carbonyl_alkylation_present():
+    """
+    Test the behavior of `alpha_carbonyl_alkylation` function when the pattern is present.
+
+    Verifies that the function correctly identifies the pattern and returns the expected list of reactants.
+
+    Returns:
+    None
+    """
     mol = Chem.MolFromSmiles('CC(=O)C(CCC)C(=O)CCC(=O)C(CC)(C)C')
     with patch('IPython.display.display') as mock_display: #display is a function for IPython; as the tests are done in Python, the function is transformed
         mock_display.side_effect = lambda *args, **kwargs: None #in a function that does nothing, so that errors do not appear
