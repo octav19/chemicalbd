@@ -51,6 +51,34 @@ def unique_list_reactants (reactants_tuple: tuple) -> list:
             mols.append(Chem.MolFromSmiles(smiles))
         reactants_unique_mol.append(mols)
     return reactants_unique_mol
+
+def flatten_list(nested_list) ->list:
+    """
+    Flatten a nested list containing rdchem.Mol elements or other lists.
+    
+    Parameters:
+    nested_list (list): The nested list to be flattened.
+        
+    Returns:
+    list: A flattened list containing rdchem.Mol elements.
+
+    Raises:
+    TypeError: If nested_list is not a list.
+    """
+    if not isinstance (nested_list, list):
+        raise TypeError(
+            f" Invalid type {type(nested_list)}: 'nested_list'"
+            f" Should be passed as a list object."
+        )
+    #List to store the rdchem.Mol elements of a nested list.
+    flattened_list = []
+    
+    for item in nested_list:
+        if isinstance(item, Chem.rdchem.Mol): #Verrifies if the element is a Mol type element; if so it is added to the list
+            flattened_list.append(item)
+        elif isinstance(item, list): #Else, if this is another list, it flattens it
+            flattened_list.extend(flatten_list(item))
+    return flattened_list
     
 def C_S_disconnection (mol: Chem.rdchem.Mol) ->list:
     """
@@ -814,35 +842,39 @@ def swern_oxidation (mol: Chem.rdchem.Mol) ->int :
     return [0]
             
 def disconnections (mol_smiles: str):
-    '''
-    This function takes the SMILE of a molecule and
-    displays all the known disconnections.
-    '''
+    """
+    This function takes the SMILES string of a molecule, displays the molecule,
+    and identifies and displays all the known bond disconnections.
+
+    Parameters:
+    mol_smiles (str): The SMILES string of the molecule.
+
+    Returns:
+    List[Chem.Mol]: A list of RDKit Mol objects representing the reactants
+    and synthesis intermediates resulting from the identified disconnections.
+    """
+    
     mol = Chem.MolFromSmiles(mol_smiles) #Transforms SMILE in mol object
     print (f"The molecule inserted looks like this:")
-    display(mol)
+    display(mol) #Displays the molecule
     print (f"--------------------------------------")
     print (f"--------------------------------------")
     sum = 0 #Parameter that keeps track of the number of the types of disconnections found in the molecule
-    reactant_list = []
+    reactant_list = [] #List of Mol objects containing the reactants and synthesis intermediates 
     known_disc = [C_S_disconnection, ester_disconnection, alcohol_beta_double_bond, alcohol_beta_triple_bond,
-                 alpha_carbonyl_alkylation, dicarbonyl_1_3, aldol, swern_oxidation]
-    for disc in known_disc:
+                 alpha_carbonyl_alkylation, dicarbonyl_1_3, aldol, swern_oxidation] #List of known disconnection
+    for disc in known_disc: #It is searched if the compound contains a known disconnection
         reactant_list_temporary = disc(mol)
-        if reactant_list_temporary[0] == 1:
+        if reactant_list_temporary[0] == 1: #A disconnection was found 
             reactant_list.append(reactant_list_temporary[1])
         sum += reactant_list_temporary[0]
     if not sum: #In case no disconnection was found
         print(f"The molecule contains no known disconnections")
         return 0
-    return reactant_list
+    reactant_list = flatten_list(reactant_list) #This is performed as for each disconnection, a list of Mol objects is added to the initial list
+    return reactant_list #Thus, a list containing only Mol objects is returned.
 
-def main ():
-    mol_smiles = 'CCCSCCCC'
-    reactant_list = disconnections (mol_smiles)
 
-if __name__ == '__main__':
-    main()
 
 # In[ ]:
 
