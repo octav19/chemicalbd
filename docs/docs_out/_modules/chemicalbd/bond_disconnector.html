@@ -322,7 +322,8 @@
 <span class="sd">    list: A flattened list containing rdchem.Mol elements.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">    TypeError: If nested_list is not a list.</span>
+<span class="sd">    TypeError: If nested_list is not a list, or if it contains other</span>
+<span class="sd">    elements other than lists or rdchem.Mol</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span> <span class="p">(</span><span class="n">nested_list</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
@@ -333,10 +334,14 @@
     <span class="n">flattened_list</span> <span class="o">=</span> <span class="p">[]</span>
     
     <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">nested_list</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Chem</span><span class="o">.</span><span class="n">rdchem</span><span class="o">.</span><span class="n">Mol</span><span class="p">):</span> <span class="c1">#Verrifies if the element is a Mol type element; if so it is added to the list</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Chem</span><span class="o">.</span><span class="n">rdchem</span><span class="o">.</span><span class="n">Mol</span><span class="p">):</span> <span class="c1">#Verrifies if the element is a Mol type object; if so it is added to the list</span>
             <span class="n">flattened_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span> <span class="c1">#Else, if this is another list, it flattens it</span>
             <span class="n">flattened_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">flatten_list</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid element type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="p">)</span><span class="si">}</span><span class="s2">: Elements within the list must be either rdchem.Mol objects or lists.&quot;</span>
+            <span class="p">)</span>
     <span class="k">return</span> <span class="n">flattened_list</span></div>
 
     
@@ -400,6 +405,63 @@
         <span class="k">return</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">reactants_returned</span><span class="p">]</span>
     <span class="k">return</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
+
+<div class="viewcode-block" id="C_O_disconnection">
+<a class="viewcode-back" href="../../api/chemicalbd.html#chemicalbd.bond_disconnector.C_O_disconnection">[docs]</a>
+<span class="k">def</span> <span class="nf">C_O_disconnection</span> <span class="p">(</span><span class="n">mol</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">rdchem</span><span class="o">.</span><span class="n">Mol</span><span class="p">)</span> <span class="o">-&gt;</span><span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Verifies if an ether is present in the given molecule.</span>
+
+<span class="sd">    If an ether is present:</span>
+<span class="sd">    The function identifies reactants that could form this ether, specifically an alkyl iodide and an alcohol</span>
+<span class="sd">    in the presence of sodium hydroxide.</span>
+<span class="sd">    Displays the possible disconnections and returns 1 along with the list of reactants.</span>
+
+<span class="sd">    Symmetry in the molecule reduces the number of unique disconnections.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    mol (Chem.rdchem.Mol): The molecule to be analyzed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    list: [1, reactants_returned] if an ether is found, where reactants_returned is a list of reactants.</span>
+<span class="sd">    [0] if the bond is not found.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">    TypeError: If the input is not a Chem.rdchem.Mol object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># Validate input type</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span> <span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">Chem</span><span class="o">.</span><span class="n">rdchem</span><span class="o">.</span><span class="n">Mol</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot; Invalid type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span><span class="si">}</span><span class="s2">: &#39;mol&#39;&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot; Should be passed as a mol object.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">mol</span><span class="o">.</span><span class="n">HasSubstructMatch</span><span class="p">(</span><span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmarts</span><span class="p">(</span><span class="s1">&#39;[C^3][O][C]&#39;</span><span class="p">)):</span> <span class="c1">#Verifies if an ether is present</span>
+        <span class="c1"># Define SMILES for necessary compounds</span>
+        <span class="n">iodine</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="s1">&#39;I&#39;</span><span class="p">)</span>
+        <span class="n">sodium_hydroxide</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="s1">&#39;[Na+].[OH-]&#39;</span><span class="p">)</span>
+        <span class="n">rxn</span> <span class="o">=</span> <span class="n">AllChem</span><span class="o">.</span><span class="n">ReactionFromSmarts</span><span class="p">(</span><span class="s1">&#39;[C^3:1][O:2][C:4].[I:3]&gt;&gt;[C^3:1][I:3].[O:2][C:4]&#39;</span><span class="p">)</span> <span class="c1">#Searches for the ether and returns the reactants to make it in </span>
+        <span class="n">reactants</span> <span class="o">=</span> <span class="n">unique_list_reactants</span><span class="p">(</span><span class="n">rxn</span><span class="o">.</span><span class="n">RunReactants</span><span class="p">((</span><span class="n">mol</span><span class="p">,</span> <span class="n">iodine</span><span class="p">)))</span> <span class="c1"># a list of lists; each list = reactive site </span>
+        <span class="n">reactants_returned</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1">#List of reactants that are going to be returned</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1">#Parameter to count the number of possible reactants that form ethers</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">reactants</span><span class="p">:</span> <span class="c1">#Reactants are displayed</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Option </span><span class="si">{</span><span class="n">opt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">reactant_1</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">reactant_2</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sodium_hydroxide</span><span class="p">]</span>
+            <span class="c1">#The reactants corresponding to each ether formed are added in the list that is returned</span>
+            <span class="n">reactants_returned</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">reactants_returned</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">reactants_returned</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sodium_hydroxide</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reactant 1&quot;</span><span class="p">)</span>
+            <span class="n">display</span><span class="p">(</span><span class="n">Draw</span><span class="o">.</span><span class="n">MolsToGridImage</span><span class="p">(</span><span class="n">reactant_1</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reactant 2&quot;</span><span class="p">)</span>
+            <span class="n">display</span><span class="p">(</span><span class="n">Draw</span><span class="o">.</span><span class="n">MolsToGridImage</span><span class="p">(</span><span class="n">reactant_2</span><span class="p">))</span>
+            <span class="n">opt</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--------------------------------------&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--------------------------------------&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">reactants_returned</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> </div>
+
     
 <div class="viewcode-block" id="ester_disconnection">
 <a class="viewcode-back" href="../../api/chemicalbd.html#chemicalbd.bond_disconnector.ester_disconnection">[docs]</a>
@@ -458,6 +520,266 @@
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Catalyst&quot;</span><span class="p">)</span>
             <span class="n">display</span><span class="p">(</span><span class="n">Draw</span><span class="o">.</span><span class="n">MolsToGridImage</span><span class="p">(</span><span class="n">catalyst</span><span class="p">))</span>
             <span class="n">opt</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--------------------------------------&quot;</span><span class="p">)</span>
+        <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--------------------------------------&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">reactants_returned</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="amide_disconnection">
+<a class="viewcode-back" href="../../api/chemicalbd.html#chemicalbd.bond_disconnector.amide_disconnection">[docs]</a>
+<span class="k">def</span> <span class="nf">amide_disconnection</span> <span class="p">(</span><span class="n">mol</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">rdchem</span><span class="o">.</span><span class="n">Mol</span><span class="p">)</span> <span class="o">-&gt;</span><span class="nb">list</span> <span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Verifies if an amide functional group is present in the given molecule.</span>
+
+<span class="sd">    If an amide is present:</span>
+<span class="sd">    Identifies reactants that could form the amide, specifically an amine and an acyl chloride,</span>
+<span class="sd">    in the presence of pyridine as a catalyst.</span>
+<span class="sd">    Displays the possible disconnections and returns 1 along with the list of reactants.</span>
+
+<span class="sd">    If the molecule has symmetry, the number of unique disconnections is reduced.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    mol (Chem.rdchem.Mol): The molecule to be analyzed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    list: [1, reactants_returned] if the ester group is found, where reactants_returned is a list of reactants.</span>
+<span class="sd">    [0] if the ester group is not found.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">    TypeError: If the input is not a Chem.rdchem.Mol object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Validate input type</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span> <span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">Chem</span><span class="o">.</span><span class="n">rdchem</span><span class="o">.</span><span class="n">Mol</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot; Invalid type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span><span class="si">}</span><span class="s2">: &#39;mol&#39;&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot; Should be passed as a mol object.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">mol</span><span class="o">.</span><span class="n">HasSubstructMatch</span><span class="p">(</span><span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmarts</span><span class="p">(</span><span class="s1">&#39;[C^2](=[O])[N][C]&#39;</span><span class="p">)):</span> <span class="c1">#Verifies if an amide is present</span>
+        <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Amide disconnection available&quot;</span><span class="p">)</span>
+        <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--------------------------------------&quot;</span><span class="p">)</span>
+        <span class="c1"># Define SMILES for necessary compounds</span>
+        <span class="n">pyridine</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="s1">&#39;c1ccccn1&#39;</span><span class="p">)</span>
+        <span class="n">chlorine</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="s1">&#39;Cl&#39;</span><span class="p">)</span>
+        <span class="n">rxn</span> <span class="o">=</span> <span class="n">AllChem</span><span class="o">.</span><span class="n">ReactionFromSmarts</span><span class="p">(</span><span class="s1">&#39;[C^2:1](=[O:2])[N:3].[Cl:4]&gt;&gt;[C^2:1](=[O:2])[Cl:4].[N:3]&#39;</span><span class="p">)</span> <span class="c1">#Searches for the amide and returns</span>
+        <span class="n">reactants</span> <span class="o">=</span> <span class="n">unique_list_reactants</span><span class="p">(</span><span class="n">rxn</span><span class="o">.</span><span class="n">RunReactants</span><span class="p">((</span><span class="n">mol</span><span class="p">,</span> <span class="n">chlorine</span><span class="p">)))</span> <span class="c1">#reactants to make the amide in a list of lists; each list = reactive site</span>
+        <span class="n">reactants_returned</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1">#List of reactants that are going to be returned</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1">#Parameter to count the number of possible reactants that form amids</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">reactants</span><span class="p">:</span> <span class="c1">#The reactants and the catalyst are displayed</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Option </span><span class="si">{</span><span class="n">opt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">reactant_1</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">reactant_2</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="n">catalyst</span> <span class="o">=</span> <span class="p">[</span><span class="n">pyridine</span><span class="p">]</span>
+            <span class="c1">#The reactants corresponding to each amide site are added in the list that is returned</span>
+            <span class="n">reactants_returned</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">reactants_returned</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">reactants_returned</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pyridine</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reactant 1&quot;</span><span class="p">)</span>
+            <span class="n">display</span><span class="p">(</span><span class="n">Draw</span><span class="o">.</span><span class="n">MolsToGridImage</span><span class="p">(</span><span class="n">reactant_1</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reactant 2&quot;</span><span class="p">)</span>
+            <span class="n">display</span><span class="p">(</span><span class="n">Draw</span><span class="o">.</span><span class="n">MolsToGridImage</span><span class="p">(</span><span class="n">reactant_2</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Catalyst&quot;</span><span class="p">)</span>
+            <span class="n">display</span><span class="p">(</span><span class="n">Draw</span><span class="o">.</span><span class="n">MolsToGridImage</span><span class="p">(</span><span class="n">catalyst</span><span class="p">))</span>
+            <span class="n">opt</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--------------------------------------&quot;</span><span class="p">)</span>
+        <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--------------------------------------&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">reactants_returned</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="acyl_chloride_disconnection">
+<a class="viewcode-back" href="../../api/chemicalbd.html#chemicalbd.bond_disconnector.acyl_chloride_disconnection">[docs]</a>
+<span class="k">def</span> <span class="nf">acyl_chloride_disconnection</span> <span class="p">(</span><span class="n">mol</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">rdchem</span><span class="o">.</span><span class="n">Mol</span><span class="p">)</span> <span class="o">-&gt;</span><span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Verifies if an acyl chloride functional group is present in the given molecule.</span>
+
+<span class="sd">    If an acyl chloride is present:</span>
+<span class="sd">    Identifies reactants that could form the acyl chloride, specifically a carboxylic acid </span>
+<span class="sd">    and thionyl chloride.</span>
+<span class="sd">    Displays the possible disconnections and returns 1 along with the list of reactants.</span>
+
+<span class="sd">    If the molecule has symmetry, the number of unique disconnections is reduced.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    mol (Chem.rdchem.Mol): The molecule to be analyzed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    list: [1, reactants_returned] if the ester group is found, where reactants_returned is a list of reactants.</span>
+<span class="sd">    [0] if the ester group is not found.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">    TypeError: If the input is not a Chem.rdchem.Mol object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Validate input type</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span> <span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">Chem</span><span class="o">.</span><span class="n">rdchem</span><span class="o">.</span><span class="n">Mol</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot; Invalid type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span><span class="si">}</span><span class="s2">: &#39;mol&#39;&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot; Should be passed as a mol object.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">mol</span><span class="o">.</span><span class="n">HasSubstructMatch</span><span class="p">(</span><span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmarts</span><span class="p">(</span><span class="s1">&#39;[C^2](=[O])[Cl]&#39;</span><span class="p">)):</span> <span class="c1">#Verifies if the acyl chloride is present</span>
+        <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Acyl chloride disconnection available&quot;</span><span class="p">)</span>
+        <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--------------------------------------&quot;</span><span class="p">)</span>
+        <span class="c1"># Define SMILES for necessary compounds</span>
+        <span class="n">oxygen_smiles</span> <span class="o">=</span> <span class="s1">&#39;O&#39;</span>
+        <span class="n">chlorine_smiles</span> <span class="o">=</span> <span class="s1">&#39;[Cl]&#39;</span>
+        <span class="n">SOCl2_smiles</span> <span class="o">=</span><span class="s1">&#39;Cl[S](Cl)=O&#39;</span>
+        <span class="n">oxygen</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">oxygen_smiles</span><span class="p">)</span>
+        <span class="n">chlorine</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">chlorine_smiles</span><span class="p">)</span>
+        <span class="n">SOCl2</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">SOCl2_smiles</span><span class="p">)</span>
+        <span class="n">rxn</span> <span class="o">=</span> <span class="n">AllChem</span><span class="o">.</span><span class="n">ReactionFromSmarts</span><span class="p">(</span><span class="s1">&#39;[C^2:1](=[O:2])[Cl:3].[O:4]&gt;&gt;[C^2:1](=[O:2])[O:4].[Cl:3]&#39;</span><span class="p">)</span> <span class="c1">#Searches for the acyl chloride and returns reactants</span>
+        <span class="n">reactants</span> <span class="o">=</span> <span class="n">unique_list_reactants</span><span class="p">(</span><span class="n">rxn</span><span class="o">.</span><span class="n">RunReactants</span><span class="p">((</span><span class="n">mol</span><span class="p">,</span> <span class="n">oxygen</span><span class="p">)))</span><span class="c1">#to make the acyl chloride in a list of lists; each list = reactive site</span>
+        <span class="n">reactants_returned</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1">#List of reactants that are going to be returned</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1">#Parameter to count the number of possible reactants that form acyl chlorides</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">reactants</span><span class="p">:</span> <span class="c1">#The reactants and the catalyst are displayed</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Option </span><span class="si">{</span><span class="n">opt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">reactant_1</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">reactant_2</span> <span class="o">=</span> <span class="p">[</span><span class="n">SOCl2</span><span class="p">]</span>
+            <span class="c1">#The reactants corresponding to each acyl chloride site are added in the list that is returned</span>
+            <span class="n">reactants_returned</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">reactants_returned</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SOCl2</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reactant 1&quot;</span><span class="p">)</span>
+            <span class="n">display</span><span class="p">(</span><span class="n">Draw</span><span class="o">.</span><span class="n">MolsToGridImage</span><span class="p">(</span><span class="n">reactant_1</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reactant 2&quot;</span><span class="p">)</span>
+            <span class="n">display</span><span class="p">(</span><span class="n">Draw</span><span class="o">.</span><span class="n">MolsToGridImage</span><span class="p">(</span><span class="n">reactant_2</span><span class="p">))</span>
+            <span class="n">opt</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--------------------------------------&quot;</span><span class="p">)</span>
+        <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--------------------------------------&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">reactants_returned</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="amine_disconnection">
+<a class="viewcode-back" href="../../api/chemicalbd.html#chemicalbd.bond_disconnector.amine_disconnection">[docs]</a>
+<span class="k">def</span> <span class="nf">amine_disconnection</span> <span class="p">(</span><span class="n">mol</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">rdchem</span><span class="o">.</span><span class="n">Mol</span><span class="p">)</span> <span class="o">-&gt;</span><span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checks for the presence of an alkyl amine, subtituted with at least one C(sp3).</span>
+
+<span class="sd">    If such a pattern is found:</span>
+<span class="sd">    Identifies and displays reactants from which the pattern could be formed: a silyl enol ether and a carbonyl compound,</span>
+<span class="sd">    with pyridine, also displayed, as a catalyst.</span>
+<span class="sd">    Displays the reaction intermediate.</span>
+<span class="sd">    Displays the reduction conditions of the intermediate.</span>
+<span class="sd">    Ensures that, if the molecule has certain symmetry, the number of disconnections is reduced.</span>
+<span class="sd">    Returns a list containing 1 and a list of the reactants, catalyst, intermediates and hydrogenation conditions.</span>
+
+<span class="sd">    If the pattern is not present:</span>
+<span class="sd">    Returns a list containing 0.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    mol (Chem.rdchem.Mol): The molecule to be analyzed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    list: [1, reactants_returned] if the pattern is found, where reactants_returned is a list of reactants.</span>
+<span class="sd">    [0] if the pattern is not found.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">    TypeError: If the input is not a Chem.rdchem.Mol object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Validate input type</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">Chem</span><span class="o">.</span><span class="n">rdchem</span><span class="o">.</span><span class="n">Mol</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid type :</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span><span class="si">}</span><span class="s2">: &#39;mol&#39;&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Should be passed as a mol object.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">mol</span><span class="o">.</span><span class="n">HasSubstructMatch</span><span class="p">(</span><span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmarts</span><span class="p">(</span><span class="s1">&#39;[C^3][N]&#39;</span><span class="p">)):</span> <span class="c1">#Verifies if the alkyl amine (containing at least one sp3 subtituent is present) </span>
+        <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Amine disconnection available&quot;</span><span class="p">)</span>
+        <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--------------------------------------&quot;</span><span class="p">)</span>
+        <span class="c1"># Define SMILES for necessary compounds</span>
+        <span class="n">oxygen_smiles</span> <span class="o">=</span> <span class="s1">&#39;O&#39;</span>
+        <span class="n">chlorine_smiles</span><span class="o">=</span><span class="s1">&#39;Cl&#39;</span>
+        <span class="n">LiAlH4_smiles</span> <span class="o">=</span><span class="s1">&#39;[Li+].[AlH4-]&#39;</span>
+        <span class="n">pyridine_smiles</span> <span class="o">=</span> <span class="s1">&#39;c1ccccn1&#39;</span>
+        <span class="n">oxygen</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">oxygen_smiles</span><span class="p">)</span>
+        <span class="n">chlorine</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">chlorine_smiles</span><span class="p">)</span>
+        <span class="n">LiAlH4</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">LiAlH4_smiles</span><span class="p">)</span>
+        <span class="n">pyridine</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">pyridine_smiles</span><span class="p">)</span>
+        <span class="n">rxn</span> <span class="o">=</span> <span class="n">AllChem</span><span class="o">.</span><span class="n">ReactionFromSmarts</span><span class="p">(</span><span class="s1">&#39;[N:1][C^3:2].[Cl:3].[O:4]&gt;&gt;[N:1].[C^2:2](=[O:4])[Cl:3]&#39;</span><span class="p">)</span> <span class="c1">#Searches for the bond pattern and returns reactants</span>
+        <span class="n">reactants</span> <span class="o">=</span> <span class="n">unique_list_reactants</span><span class="p">(</span><span class="n">rxn</span><span class="o">.</span><span class="n">RunReactants</span><span class="p">((</span><span class="n">mol</span><span class="p">,</span><span class="n">chlorine</span><span class="p">,</span><span class="n">oxygen</span><span class="p">)))</span><span class="c1">#to make the bond in a list of lists; each list = reactive site</span>
+        <span class="n">reactants_returned</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1">#List of reactants that are going to be returned </span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1">#Parameter to count the number of possible reactants that form C(sp3 hybridized)-N bonds</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">reactants</span><span class="p">:</span> <span class="c1">#Prints the reactants</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Option </span><span class="si">{</span><span class="n">opt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">reactant_1</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">reactant_2</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reactant 1&quot;</span><span class="p">)</span>
+            <span class="n">display</span><span class="p">(</span><span class="n">Draw</span><span class="o">.</span><span class="n">MolsToGridImage</span><span class="p">(</span><span class="n">reactant_1</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reactant 2&quot;</span><span class="p">)</span>
+            <span class="n">display</span><span class="p">(</span><span class="n">Draw</span><span class="o">.</span><span class="n">MolsToGridImage</span><span class="p">(</span><span class="n">reactant_2</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Catalyst&quot;</span><span class="p">)</span>
+            <span class="n">display</span><span class="p">(</span><span class="n">Draw</span><span class="o">.</span><span class="n">MolsToGridImage</span><span class="p">([</span><span class="n">pyridine</span><span class="p">]))</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Once combined, the reactants give the following intermediate&quot;</span><span class="p">)</span>
+            <span class="c1">#The reaction intermediate is formed and is displayed afterwards</span>
+            <span class="n">rxn_intermediate</span> <span class="o">=</span> <span class="n">AllChem</span><span class="o">.</span><span class="n">ReactionFromSmarts</span><span class="p">(</span><span class="s1">&#39;[N^3:1].[Cl:2][C:3]=[O:4]&gt;&gt;[N^3:1][C:3]=[O:4].[Cl:2]&#39;</span><span class="p">)</span>
+            <span class="n">intermediate</span> <span class="o">=</span> <span class="n">unique_list_reactants</span><span class="p">(</span><span class="n">rxn_intermediate</span><span class="o">.</span><span class="n">RunReactants</span><span class="p">((</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
+            <span class="n">display</span><span class="p">(</span><span class="n">Draw</span><span class="o">.</span><span class="n">MolsToGridImage</span><span class="p">([</span><span class="n">intermediate</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]]))</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;This intermediate needs to be reduced&quot;</span> <span class="c1">#The reducing conditions of the intermediate are displayed</span>
+               <span class="sa">f</span><span class="s2">&quot; in order to obtain the target molecule. The following reducing agent could be used:&quot;</span><span class="p">)</span>
+            <span class="n">display</span><span class="p">(</span><span class="n">Draw</span><span class="o">.</span><span class="n">MolsToGridImage</span><span class="p">([</span><span class="n">LiAlH4</span><span class="p">]))</span>
+            <span class="c1">#The reactants corresponding to each reactive site are added in the list that is returned</span>
+            <span class="n">reactants_returned</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">reactants_returned</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">reactants_returned</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pyridine</span><span class="p">)</span>
+            <span class="n">reactants_returned</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">intermediate</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">reactants_returned</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">LiAlH4</span><span class="p">)</span>
+            <span class="n">opt</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--------------------------------------&quot;</span><span class="p">)</span>
+        <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--------------------------------------&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">reactants_returned</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="amino_alcohol_1_2">
+<a class="viewcode-back" href="../../api/chemicalbd.html#chemicalbd.bond_disconnector.amino_alcohol_1_2">[docs]</a>
+<span class="k">def</span> <span class="nf">amino_alcohol_1_2</span> <span class="p">(</span><span class="n">mol</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">rdchem</span><span class="o">.</span><span class="n">Mol</span><span class="p">)</span> <span class="o">-&gt;</span><span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Verifies if a pattern of a 1,2 amino alcohol is present in the given molecule.</span>
+
+<span class="sd">    If the pattern is present:</span>
+<span class="sd">    Identifies reactants that could form the pattern, specifically an amine in the presence</span>
+<span class="sd">    of a strong base such as sodium amide and an epoxide.</span>
+<span class="sd">    Displays the reactants and returns 1 along with the list of reactants.</span>
+
+<span class="sd">    If the molecule has symmetry, the number of unique disconnections is reduced.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    mol (Chem.rdchem.Mol): The molecule to be analyzed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    list: [1, reactants_returned] if the pattern is found, where reactants_returned is a list of reactants.</span>
+<span class="sd">    [0] if the pattern is not found.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">    TypeError: If the input is not a Chem.rdchem.Mol object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Validate input type</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span> <span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">Chem</span><span class="o">.</span><span class="n">rdchem</span><span class="o">.</span><span class="n">Mol</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid type :</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span><span class="si">}</span><span class="s2">: &#39;mol&#39;&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Should be passed as a mol object.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">mol</span><span class="o">.</span><span class="n">HasSubstructMatch</span><span class="p">(</span><span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmarts</span><span class="p">(</span><span class="s1">&#39;[C^3]([OH])[C^3][NH]&#39;</span><span class="p">)):</span> <span class="c1">#Searches for a 1,2 amino-alcohol </span>
+        <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;1,2 amino-alcohol disconnection&quot;</span><span class="p">)</span>
+        <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--------------------------------------&quot;</span><span class="p">)</span>
+        <span class="c1"># Define SMILES for necessary compounds</span>
+        <span class="n">NaNH2_smiles</span><span class="o">=</span><span class="s1">&#39;[NH2-].[Na+]&#39;</span>
+        <span class="n">NaNH2</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">NaNH2_smiles</span><span class="p">)</span>
+        <span class="n">rxn</span> <span class="o">=</span> <span class="n">AllChem</span><span class="o">.</span><span class="n">ReactionFromSmarts</span><span class="p">(</span><span class="s1">&#39;[C^3:1]([OH:2])[C^3:3][NH:4]&gt;&gt;[C^3:1]1[O:2][C^3:3]1.[N:4]&#39;</span><span class="p">)</span> <span class="c1">#The pattern is searched and reactants</span>
+        <span class="n">reactants</span> <span class="o">=</span> <span class="n">unique_list_reactants</span><span class="p">(</span><span class="n">rxn</span><span class="o">.</span><span class="n">RunReactants</span><span class="p">((</span><span class="n">mol</span><span class="p">,)))</span><span class="c1">#that could make it are returned as a list of lists; each list = reactive site</span>
+        <span class="n">reactants_returned</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1">#List of reactants that are going to be returned</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1">#Parameter to count the number of possible reactants that form the 1,2 amino-alcohol</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">reactants</span><span class="p">:</span> <span class="c1">#Reactants are displayed</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Option </span><span class="si">{</span><span class="n">opt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">reactant_1</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">reactant_2</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">NaNH2</span><span class="p">]</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reactant 1&quot;</span><span class="p">)</span>
+            <span class="n">display</span><span class="p">(</span><span class="n">Draw</span><span class="o">.</span><span class="n">MolsToGridImage</span><span class="p">(</span><span class="n">reactant_1</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reactant 2&quot;</span><span class="p">)</span>
+            <span class="n">display</span><span class="p">(</span><span class="n">Draw</span><span class="o">.</span><span class="n">MolsToGridImage</span><span class="p">(</span><span class="n">reactant_2</span><span class="p">))</span>
+            <span class="n">opt</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c1">#The reactants corresponding to each reactive site are added in the list that is returned</span>
+            <span class="n">reactants_returned</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">reactants_returned</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">reactants_returned</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">NaNH2</span><span class="p">)</span>
             <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--------------------------------------&quot;</span><span class="p">)</span>
         <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--------------------------------------&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">reactants_returned</span><span class="p">]</span>
@@ -546,6 +868,73 @@
             <span class="n">opt</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--------------------------------------&quot;</span><span class="p">)</span>
         <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--------------------------------------&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">reactants_returned</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="grignard">
+<a class="viewcode-back" href="../../api/chemicalbd.html#chemicalbd.bond_disconnector.grignard">[docs]</a>
+<span class="k">def</span> <span class="nf">grignard</span> <span class="p">(</span><span class="n">mol</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">rdchem</span><span class="o">.</span><span class="n">Mol</span><span class="p">)</span> <span class="o">-&gt;</span><span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Verifies if an alcohol is present in the given molecule.</span>
+
+<span class="sd">    If the alcohol is present:</span>
+<span class="sd">    Identifies reactants that could form the alcohol, specifically a carbonyl compound</span>
+<span class="sd">    and an organomagnesian compound, usign THF as solvent (Grignard reaction).</span>
+<span class="sd">    Displays the reactants and solvent and returns 1 along with the list of reactants.</span>
+
+<span class="sd">    If the molecule has symmetry, the number of unique disconnections is reduced.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    mol (Chem.rdchem.Mol): The molecule to be analyzed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    list: [1, reactants_returned] if the pattern is found, where reactants_returned is a list of reactants.</span>
+<span class="sd">    [0] if the pattern is not found.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">    TypeError: If the input is not a Chem.rdchem.Mol object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Validate input type</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span> <span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">Chem</span><span class="o">.</span><span class="n">rdchem</span><span class="o">.</span><span class="n">Mol</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid type :</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span><span class="si">}</span><span class="s2">: &#39;mol&#39;&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Should be passed as a mol object.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">mol</span><span class="o">.</span><span class="n">HasSubstructMatch</span><span class="p">(</span><span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmarts</span><span class="p">(</span><span class="s1">&#39;[C][C^3][OH]&#39;</span><span class="p">)):</span> <span class="c1">#Verifies if an alcohol is present</span>
+        <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Grignard disconnection available&quot;</span><span class="p">)</span>
+        <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--------------------------------------&quot;</span><span class="p">)</span>
+        <span class="c1"># Define SMILES for necessary compounds</span>
+        <span class="n">Mg_smiles</span><span class="o">=</span><span class="s1">&#39;[Mg]&#39;</span>
+        <span class="n">Br_smiles</span><span class="o">=</span><span class="s1">&#39;Br&#39;</span>
+        <span class="n">O_smiles</span><span class="o">=</span><span class="s1">&#39;O&#39;</span>
+        <span class="n">THF_smiles</span><span class="o">=</span><span class="s1">&#39;C1CCOC1&#39;</span>
+        <span class="n">Mg</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">Mg_smiles</span><span class="p">)</span>
+        <span class="n">Br</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">Br_smiles</span><span class="p">)</span>
+        <span class="n">O</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">O_smiles</span><span class="p">)</span>
+        <span class="n">THF</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">THF_smiles</span><span class="p">)</span>
+        <span class="n">rxn</span> <span class="o">=</span> <span class="n">AllChem</span><span class="o">.</span><span class="n">ReactionFromSmarts</span><span class="p">(</span><span class="s1">&#39;[C:1][C^3:2][O:3].[Mg:4].[Br:5]&gt;&gt;[C^2:2](=[O:3]).[C:1][Mg:4][Br:5]&#39;</span><span class="p">)</span> <span class="c1">#Searches for the alcohol and returns</span>
+        <span class="n">reactants</span> <span class="o">=</span> <span class="n">unique_list_reactants</span><span class="p">(</span><span class="n">rxn</span><span class="o">.</span><span class="n">RunReactants</span><span class="p">((</span><span class="n">mol</span><span class="p">,</span><span class="n">Mg</span><span class="p">,</span><span class="n">Br</span><span class="p">)))</span> <span class="c1">#the reactants to make it in a list of lists; each list = reactive site</span>
+        <span class="n">reactants_returned</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1">#List of reactants that are going to be returned</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1">#Parameter to count the number of possible reactants that form C(sp3 hybridized)-O bonds</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">reactants</span><span class="p">:</span> <span class="c1">#Reactants and solvent are displayed</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Option </span><span class="si">{</span><span class="n">opt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">reactant_1</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">reactant_2</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="n">solvent</span> <span class="o">=</span> <span class="p">[</span><span class="n">THF</span><span class="p">]</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reactant 1&quot;</span><span class="p">)</span>
+            <span class="n">display</span><span class="p">(</span><span class="n">Draw</span><span class="o">.</span><span class="n">MolsToGridImage</span><span class="p">(</span><span class="n">reactant_1</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reactant 2&quot;</span><span class="p">)</span>
+            <span class="n">display</span><span class="p">(</span><span class="n">Draw</span><span class="o">.</span><span class="n">MolsToGridImage</span><span class="p">(</span><span class="n">reactant_2</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Solvent&quot;</span><span class="p">)</span>
+            <span class="n">display</span><span class="p">(</span><span class="n">Draw</span><span class="o">.</span><span class="n">MolsToGridImage</span><span class="p">(</span><span class="n">solvent</span><span class="p">))</span>
+            <span class="n">opt</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c1">#The reactants corresponding to each reactive site are added in the list that is returned</span>
+            <span class="n">reactants_returned</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">reactants_returned</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">reactants_returned</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">THF</span><span class="p">)</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--------------------------------------&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--------------------------------------&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">reactants_returned</span><span class="p">]</span>
     <span class="k">return</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
@@ -1077,7 +1466,7 @@
 
 <div class="viewcode-block" id="swern_oxidation">
 <a class="viewcode-back" href="../../api/chemicalbd.html#chemicalbd.bond_disconnector.swern_oxidation">[docs]</a>
-<span class="k">def</span> <span class="nf">swern_oxidation</span> <span class="p">(</span><span class="n">mol</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">rdchem</span><span class="o">.</span><span class="n">Mol</span><span class="p">)</span> <span class="o">-&gt;</span><span class="nb">int</span> <span class="p">:</span>
+<span class="k">def</span> <span class="nf">swern_oxidation</span> <span class="p">(</span><span class="n">mol</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">rdchem</span><span class="o">.</span><span class="n">Mol</span><span class="p">)</span> <span class="o">-&gt;</span><span class="nb">list</span> <span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Checks for the presence of an aldehyde within a given molecule.</span>
 
@@ -1106,15 +1495,15 @@
             <span class="sa">f</span><span class="s2">&quot;Invalid type :</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span><span class="si">}</span><span class="s2">: &#39;mol&#39;&quot;</span>
             <span class="sa">f</span><span class="s2">&quot;Should be passed as a mol object.&quot;</span>
         <span class="p">)</span>
-    <span class="k">if</span> <span class="n">mol</span><span class="o">.</span><span class="n">HasSubstructMatch</span><span class="p">(</span><span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmarts</span><span class="p">(</span><span class="s1">&#39;[CH]=[O]&#39;</span><span class="p">)):</span>
+    <span class="k">if</span> <span class="n">mol</span><span class="o">.</span><span class="n">HasSubstructMatch</span><span class="p">(</span><span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmarts</span><span class="p">(</span><span class="s1">&#39;[CH]=[O]&#39;</span><span class="p">)):</span> <span class="c1">#Verifies if an aldehyde is present</span>
         <span class="c1"># Define SMILES for necessary compounds</span>
         <span class="n">dmso</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="s1">&#39;CS(C)=O&#39;</span><span class="p">)</span>
         <span class="n">et3n</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="s1">&#39;CCN(CC)CC&#39;</span><span class="p">)</span>
         <span class="n">oxalyl_chloride</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="s1">&#39;ClC(=O)C(=O)Cl&#39;</span><span class="p">)</span>
         <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Aldehyde disconnection spotted&quot;</span><span class="p">)</span>
         <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--------------------------------------&quot;</span><span class="p">)</span>
-        <span class="n">rxn</span> <span class="o">=</span> <span class="n">AllChem</span><span class="o">.</span><span class="n">ReactionFromSmarts</span><span class="p">(</span><span class="s1">&#39;[CH:1]=[O:2]&gt;&gt;[C:1][O:2]&#39;</span><span class="p">)</span>
-        <span class="n">reactants</span> <span class="o">=</span> <span class="n">unique_list_reactants</span><span class="p">(</span><span class="n">rxn</span><span class="o">.</span><span class="n">RunReactants</span><span class="p">((</span><span class="n">mol</span><span class="p">,)))</span>
+        <span class="n">rxn</span> <span class="o">=</span> <span class="n">AllChem</span><span class="o">.</span><span class="n">ReactionFromSmarts</span><span class="p">(</span><span class="s1">&#39;[CH:1]=[O:2]&gt;&gt;[C:1][O:2]&#39;</span><span class="p">)</span><span class="c1">#The double bond from the pattern is disconnected and the reactants </span>
+        <span class="n">reactants</span> <span class="o">=</span> <span class="n">unique_list_reactants</span><span class="p">(</span><span class="n">rxn</span><span class="o">.</span><span class="n">RunReactants</span><span class="p">((</span><span class="n">mol</span><span class="p">,)))</span><span class="c1">#are returned as a list of lists; each list = reactive site</span>
         <span class="n">reactants_returned</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1">#List of reactants that are going to be returned</span>
         <span class="n">opt</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">reactants</span><span class="p">:</span>
@@ -1136,7 +1525,7 @@
             
 <div class="viewcode-block" id="disconnections">
 <a class="viewcode-back" href="../../api/chemicalbd.html#chemicalbd.bond_disconnector.disconnections">[docs]</a>
-<span class="k">def</span> <span class="nf">disconnections</span> <span class="p">(</span><span class="n">mol_smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">disconnections</span> <span class="p">(</span><span class="n">mol_smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span><span class="nb">list</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This function takes the SMILES string of a molecule, displays the molecule,</span>
 <span class="sd">    and identifies and displays all the known bond disconnections.</span>
@@ -1145,18 +1534,34 @@
 <span class="sd">    mol_smiles (str): The SMILES string of the molecule.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">    List[Chem.Mol]: A list of RDKit Mol objects representing the reactants</span>
+<span class="sd">    list: A list of RDKit Mol objects representing the reactants</span>
 <span class="sd">    and synthesis intermediates resulting from the identified disconnections.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">    TypeError: If the input is not a str.</span>
+<span class="sd">    ValueError: If the input is not a valid SMILE string.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
+    <span class="c1"># Validate input type in the case the input is not a string</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mol_smiles</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid type :</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">mol_smiles</span><span class="p">)</span><span class="si">}</span><span class="s2">: &#39;str&#39;&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Should be passed as a mol object.&quot;</span>
+        <span class="p">)</span>
     <span class="n">mol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">mol_smiles</span><span class="p">)</span> <span class="c1">#Transforms SMILE in mol object</span>
+
+    <span class="c1"># Validate input type in the case the input is an invalid SMILES string</span>
+    <span class="k">if</span> <span class="n">mol</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The provided SMILES string is not valid.&quot;</span><span class="p">)</span>
+    
     <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The molecule inserted looks like this:&quot;</span><span class="p">)</span>
     <span class="n">display</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span> <span class="c1">#Displays the molecule</span>
     <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--------------------------------------&quot;</span><span class="p">)</span>
     <span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--------------------------------------&quot;</span><span class="p">)</span>
     <span class="nb">sum</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1">#Parameter that keeps track of the number of the types of disconnections found in the molecule</span>
     <span class="n">reactant_list</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1">#List of Mol objects containing the reactants and synthesis intermediates </span>
-    <span class="n">known_disc</span> <span class="o">=</span> <span class="p">[</span><span class="n">C_S_disconnection</span><span class="p">,</span> <span class="n">ester_disconnection</span><span class="p">,</span> <span class="n">alcohol_beta_double_bond</span><span class="p">,</span> <span class="n">alcohol_beta_triple_bond</span><span class="p">,</span>
+    <span class="n">known_disc</span> <span class="o">=</span> <span class="p">[</span><span class="n">C_S_disconnection</span><span class="p">,</span> <span class="n">C_O_disconnection</span><span class="p">,</span> <span class="n">ester_disconnection</span><span class="p">,</span> <span class="n">amide_disconnection</span><span class="p">,</span> 
+                 <span class="n">acyl_chloride_disconnection</span><span class="p">,</span> <span class="n">amine_disconnection</span><span class="p">,</span> <span class="n">amino_alcohol_1_2</span><span class="p">,</span> <span class="n">grignard</span><span class="p">,</span>
+                 <span class="n">alcohol_beta_double_bond</span><span class="p">,</span> <span class="n">alcohol_beta_triple_bond</span><span class="p">,</span>
                  <span class="n">alpha_carbonyl_alkylation</span><span class="p">,</span> <span class="n">dicarbonyl_1_3</span><span class="p">,</span> <span class="n">aldol</span><span class="p">,</span> <span class="n">swern_oxidation</span><span class="p">]</span> <span class="c1">#List of known disconnection</span>
     <span class="k">for</span> <span class="n">disc</span> <span class="ow">in</span> <span class="n">known_disc</span><span class="p">:</span> <span class="c1">#It is searched if the compound contains a known disconnection</span>
         <span class="n">reactant_list_temporary</span> <span class="o">=</span> <span class="n">disc</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
@@ -1165,7 +1570,7 @@
         <span class="nb">sum</span> <span class="o">+=</span> <span class="n">reactant_list_temporary</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">sum</span><span class="p">:</span> <span class="c1">#In case no disconnection was found</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The molecule contains no known disconnections&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="p">[]</span>
     <span class="n">reactant_list</span> <span class="o">=</span> <span class="n">flatten_list</span><span class="p">(</span><span class="n">reactant_list</span><span class="p">)</span> <span class="c1">#This is performed as for each disconnection, a list of Mol objects is added to the initial list</span>
     <span class="k">return</span> <span class="n">reactant_list</span> <span class="c1">#Thus, a list containing only Mol objects is returned.</span></div>
 

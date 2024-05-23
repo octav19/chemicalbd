@@ -63,7 +63,8 @@ def flatten_list(nested_list) ->list:
     list: A flattened list containing rdchem.Mol elements.
 
     Raises:
-    TypeError: If nested_list is not a list.
+    TypeError: If nested_list is not a list, or if it contains other
+    elements other than lists or rdchem.Mol
     """
     if not isinstance (nested_list, list):
         raise TypeError(
@@ -74,10 +75,14 @@ def flatten_list(nested_list) ->list:
     flattened_list = []
     
     for item in nested_list:
-        if isinstance(item, Chem.rdchem.Mol): #Verrifies if the element is a Mol type element; if so it is added to the list
+        if isinstance(item, Chem.rdchem.Mol): #Verrifies if the element is a Mol type object; if so it is added to the list
             flattened_list.append(item)
         elif isinstance(item, list): #Else, if this is another list, it flattens it
             flattened_list.extend(flatten_list(item))
+        else:
+            raise TypeError(
+                f"Invalid element type {type(item)}: Elements within the list must be either rdchem.Mol objects or lists."
+            )
     return flattened_list
     
 def C_S_disconnection (mol: Chem.rdchem.Mol) ->list:
@@ -137,6 +142,60 @@ def C_S_disconnection (mol: Chem.rdchem.Mol) ->list:
         print(f"--------------------------------------")
         return [1, reactants_returned]
     return [0]
+
+def C_O_disconnection (mol: Chem.rdchem.Mol) ->list:
+    """
+    Verifies if an ether is present in the given molecule.
+
+    If an ether is present:
+    The function identifies reactants that could form this ether, specifically an alkyl iodide and an alcohol
+    in the presence of sodium hydroxide.
+    Displays the possible disconnections and returns 1 along with the list of reactants.
+
+    Symmetry in the molecule reduces the number of unique disconnections.
+
+    Parameters:
+    mol (Chem.rdchem.Mol): The molecule to be analyzed.
+
+    Returns:
+    list: [1, reactants_returned] if an ether is found, where reactants_returned is a list of reactants.
+    [0] if the bond is not found.
+
+    Raises:
+    TypeError: If the input is not a Chem.rdchem.Mol object.
+    """
+    
+    # Validate input type
+    if not isinstance (mol, Chem.rdchem.Mol):
+        raise TypeError(
+            f" Invalid type {type(mol)}: 'mol'"
+            f" Should be passed as a mol object."
+        )
+    if mol.HasSubstructMatch(Chem.MolFromSmarts('[C^3][O][C]')): #Verifies if an ether is present
+        # Define SMILES for necessary compounds
+        iodine = Chem.MolFromSmiles('I')
+        sodium_hydroxide = Chem.MolFromSmiles('[Na+].[OH-]')
+        rxn = AllChem.ReactionFromSmarts('[C^3:1][O:2][C:4].[I:3]>>[C^3:1][I:3].[O:2][C:4]') #Searches for the ether and returns the reactants to make it in 
+        reactants = unique_list_reactants(rxn.RunReactants((mol, iodine))) # a list of lists; each list = reactive site 
+        reactants_returned = [] #List of reactants that are going to be returned
+        opt = 1 #Parameter to count the number of possible reactants that form ethers
+        for r in reactants: #Reactants are displayed
+            print(f"Option {opt}")
+            reactant_1 = [r[0]]
+            reactant_2 = [r[1], sodium_hydroxide]
+            #The reactants corresponding to each ether formed are added in the list that is returned
+            reactants_returned.append(r[0])
+            reactants_returned.append(r[1])
+            reactants_returned.append(sodium_hydroxide)
+            print(f"Reactant 1")
+            display(Draw.MolsToGridImage(reactant_1))
+            print(f"Reactant 2")
+            display(Draw.MolsToGridImage(reactant_2))
+            opt += 1
+            print (f"--------------------------------------")
+        print(f"--------------------------------------")
+        return [1, reactants_returned]
+    return [0] 
     
 def ester_disconnection (mol: Chem.rdchem.Mol) ->list:
     """
@@ -193,6 +252,254 @@ def ester_disconnection (mol: Chem.rdchem.Mol) ->list:
             print(f"Catalyst")
             display(Draw.MolsToGridImage(catalyst))
             opt += 1
+            print (f"--------------------------------------")
+        print (f"--------------------------------------")
+        return [1, reactants_returned]
+    return [0]
+
+def amide_disconnection (mol: Chem.rdchem.Mol) ->list :
+    """
+    Verifies if an amide functional group is present in the given molecule.
+
+    If an amide is present:
+    Identifies reactants that could form the amide, specifically an amine and an acyl chloride,
+    in the presence of pyridine as a catalyst.
+    Displays the possible disconnections and returns 1 along with the list of reactants.
+
+    If the molecule has symmetry, the number of unique disconnections is reduced.
+
+    Parameters:
+    mol (Chem.rdchem.Mol): The molecule to be analyzed.
+
+    Returns:
+    list: [1, reactants_returned] if the ester group is found, where reactants_returned is a list of reactants.
+    [0] if the ester group is not found.
+
+    Raises:
+    TypeError: If the input is not a Chem.rdchem.Mol object.
+    """
+    # Validate input type
+    if not isinstance (mol, Chem.rdchem.Mol):
+        raise TypeError(
+            f" Invalid type {type(mol)}: 'mol'"
+            f" Should be passed as a mol object."
+        )
+    if mol.HasSubstructMatch(Chem.MolFromSmarts('[C^2](=[O])[N][C]')): #Verifies if an amide is present
+        print (f"Amide disconnection available")
+        print (f"--------------------------------------")
+        # Define SMILES for necessary compounds
+        pyridine = Chem.MolFromSmiles('c1ccccn1')
+        chlorine = Chem.MolFromSmiles('Cl')
+        rxn = AllChem.ReactionFromSmarts('[C^2:1](=[O:2])[N:3].[Cl:4]>>[C^2:1](=[O:2])[Cl:4].[N:3]') #Searches for the amide and returns
+        reactants = unique_list_reactants(rxn.RunReactants((mol, chlorine))) #reactants to make the amide in a list of lists; each list = reactive site
+        reactants_returned = [] #List of reactants that are going to be returned
+        opt = 1 #Parameter to count the number of possible reactants that form amids
+        for r in reactants: #The reactants and the catalyst are displayed
+            print(f"Option {opt}")
+            reactant_1 = [r[0]]
+            reactant_2 = [r[1]]
+            catalyst = [pyridine]
+            #The reactants corresponding to each amide site are added in the list that is returned
+            reactants_returned.append(r[0])
+            reactants_returned.append(r[1])
+            reactants_returned.append(pyridine)
+            print(f"Reactant 1")
+            display(Draw.MolsToGridImage(reactant_1))
+            print(f"Reactant 2")
+            display(Draw.MolsToGridImage(reactant_2))
+            print(f"Catalyst")
+            display(Draw.MolsToGridImage(catalyst))
+            opt += 1
+            print (f"--------------------------------------")
+        print (f"--------------------------------------")
+        return [1, reactants_returned]
+    return [0]
+
+def acyl_chloride_disconnection (mol: Chem.rdchem.Mol) ->list:
+    """
+    Verifies if an acyl chloride functional group is present in the given molecule.
+
+    If an acyl chloride is present:
+    Identifies reactants that could form the acyl chloride, specifically a carboxylic acid 
+    and thionyl chloride.
+    Displays the possible disconnections and returns 1 along with the list of reactants.
+
+    If the molecule has symmetry, the number of unique disconnections is reduced.
+
+    Parameters:
+    mol (Chem.rdchem.Mol): The molecule to be analyzed.
+
+    Returns:
+    list: [1, reactants_returned] if the ester group is found, where reactants_returned is a list of reactants.
+    [0] if the ester group is not found.
+
+    Raises:
+    TypeError: If the input is not a Chem.rdchem.Mol object.
+    """
+    # Validate input type
+    if not isinstance (mol, Chem.rdchem.Mol):
+        raise TypeError(
+            f" Invalid type {type(mol)}: 'mol'"
+            f" Should be passed as a mol object."
+        )
+    if mol.HasSubstructMatch(Chem.MolFromSmarts('[C^2](=[O])[Cl]')): #Verifies if the acyl chloride is present
+        print (f"Acyl chloride disconnection available")
+        print (f"--------------------------------------")
+        # Define SMILES for necessary compounds
+        oxygen_smiles = 'O'
+        chlorine_smiles = '[Cl]'
+        SOCl2_smiles ='Cl[S](Cl)=O'
+        oxygen = Chem.MolFromSmiles(oxygen_smiles)
+        chlorine = Chem.MolFromSmiles(chlorine_smiles)
+        SOCl2 = Chem.MolFromSmiles(SOCl2_smiles)
+        rxn = AllChem.ReactionFromSmarts('[C^2:1](=[O:2])[Cl:3].[O:4]>>[C^2:1](=[O:2])[O:4].[Cl:3]') #Searches for the acyl chloride and returns reactants
+        reactants = unique_list_reactants(rxn.RunReactants((mol, oxygen)))#to make the acyl chloride in a list of lists; each list = reactive site
+        reactants_returned = [] #List of reactants that are going to be returned
+        opt = 1 #Parameter to count the number of possible reactants that form acyl chlorides
+        for r in reactants: #The reactants and the catalyst are displayed
+            print(f"Option {opt}")
+            reactant_1 = [r[0]]
+            reactant_2 = [SOCl2]
+            #The reactants corresponding to each acyl chloride site are added in the list that is returned
+            reactants_returned.append(r[0])
+            reactants_returned.append(SOCl2)
+            print(f"Reactant 1")
+            display(Draw.MolsToGridImage(reactant_1))
+            print(f"Reactant 2")
+            display(Draw.MolsToGridImage(reactant_2))
+            opt += 1
+            print (f"--------------------------------------")
+        print (f"--------------------------------------")
+        return [1, reactants_returned]
+    return [0]
+
+def amine_disconnection (mol: Chem.rdchem.Mol) ->list:
+    """
+    Checks for the presence of an alkyl amine, subtituted with at least one C(sp3).
+
+    If such a pattern is found:
+    Identifies and displays reactants from which the pattern could be formed: a silyl enol ether and a carbonyl compound,
+    with pyridine, also displayed, as a catalyst.
+    Displays the reaction intermediate.
+    Displays the reduction conditions of the intermediate.
+    Ensures that, if the molecule has certain symmetry, the number of disconnections is reduced.
+    Returns a list containing 1 and a list of the reactants, catalyst, intermediates and hydrogenation conditions.
+
+    If the pattern is not present:
+    Returns a list containing 0.
+
+    Parameters:
+    mol (Chem.rdchem.Mol): The molecule to be analyzed.
+
+    Returns:
+    list: [1, reactants_returned] if the pattern is found, where reactants_returned is a list of reactants.
+    [0] if the pattern is not found.
+
+    Raises:
+    TypeError: If the input is not a Chem.rdchem.Mol object.
+    """
+    # Validate input type
+    if not isinstance(mol, Chem.rdchem.Mol):
+        raise TypeError(
+            f"Invalid type :{type(mol)}: 'mol'"
+            f"Should be passed as a mol object."
+        )
+    if mol.HasSubstructMatch(Chem.MolFromSmarts('[C^3][N]')): #Verifies if the alkyl amine (containing at least one sp3 subtituent is present) 
+        print (f"Amine disconnection available")
+        print (f"--------------------------------------")
+        # Define SMILES for necessary compounds
+        oxygen_smiles = 'O'
+        chlorine_smiles='Cl'
+        LiAlH4_smiles ='[Li+].[AlH4-]'
+        pyridine_smiles = 'c1ccccn1'
+        oxygen = Chem.MolFromSmiles(oxygen_smiles)
+        chlorine = Chem.MolFromSmiles(chlorine_smiles)
+        LiAlH4 = Chem.MolFromSmiles(LiAlH4_smiles)
+        pyridine = Chem.MolFromSmiles(pyridine_smiles)
+        rxn = AllChem.ReactionFromSmarts('[N:1][C^3:2].[Cl:3].[O:4]>>[N:1].[C^2:2](=[O:4])[Cl:3]') #Searches for the bond pattern and returns reactants
+        reactants = unique_list_reactants(rxn.RunReactants((mol,chlorine,oxygen)))#to make the bond in a list of lists; each list = reactive site
+        reactants_returned = [] #List of reactants that are going to be returned 
+        opt = 1 #Parameter to count the number of possible reactants that form C(sp3 hybridized)-N bonds
+        for r in reactants: #Prints the reactants
+            print(f"Option {opt}")
+            reactant_1 = [r[0]]
+            reactant_2 = [r[1]]
+            print(f"Reactant 1")
+            display(Draw.MolsToGridImage(reactant_1))
+            print(f"Reactant 2")
+            display(Draw.MolsToGridImage(reactant_2))
+            print(f"Catalyst")
+            display(Draw.MolsToGridImage([pyridine]))
+            print (f"Once combined, the reactants give the following intermediate")
+            #The reaction intermediate is formed and is displayed afterwards
+            rxn_intermediate = AllChem.ReactionFromSmarts('[N^3:1].[Cl:2][C:3]=[O:4]>>[N^3:1][C:3]=[O:4].[Cl:2]')
+            intermediate = unique_list_reactants(rxn_intermediate.RunReactants((r[0],r[1])))
+            display(Draw.MolsToGridImage([intermediate[0][0]]))
+            print (f"This intermediate needs to be reduced" #The reducing conditions of the intermediate are displayed
+               f" in order to obtain the target molecule. The following reducing agent could be used:")
+            display(Draw.MolsToGridImage([LiAlH4]))
+            #The reactants corresponding to each reactive site are added in the list that is returned
+            reactants_returned.append(r[0])
+            reactants_returned.append(r[1])
+            reactants_returned.append(pyridine)
+            reactants_returned.append(intermediate[0][0])
+            reactants_returned.append(LiAlH4)
+            opt += 1
+            print (f"--------------------------------------")
+        print (f"--------------------------------------")
+        return [1, reactants_returned]
+    return [0]
+
+def amino_alcohol_1_2 (mol: Chem.rdchem.Mol) ->list:
+    """
+    Verifies if a pattern of a 1,2 amino alcohol is present in the given molecule.
+
+    If the pattern is present:
+    Identifies reactants that could form the pattern, specifically an amine in the presence
+    of a strong base such as sodium amide and an epoxide.
+    Displays the reactants and returns 1 along with the list of reactants.
+
+    If the molecule has symmetry, the number of unique disconnections is reduced.
+
+    Parameters:
+    mol (Chem.rdchem.Mol): The molecule to be analyzed.
+
+    Returns:
+    list: [1, reactants_returned] if the pattern is found, where reactants_returned is a list of reactants.
+    [0] if the pattern is not found.
+
+    Raises:
+    TypeError: If the input is not a Chem.rdchem.Mol object.
+    """
+    # Validate input type
+    if not isinstance (mol, Chem.rdchem.Mol):
+        raise TypeError(
+            f"Invalid type :{type(mol)}: 'mol'"
+            f"Should be passed as a mol object."
+        )
+    if mol.HasSubstructMatch(Chem.MolFromSmarts('[C^3]([OH])[C^3][NH]')): #Searches for a 1,2 amino-alcohol 
+        print (f"1,2 amino-alcohol disconnection")
+        print (f"--------------------------------------")
+        # Define SMILES for necessary compounds
+        NaNH2_smiles='[NH2-].[Na+]'
+        NaNH2 = Chem.MolFromSmiles(NaNH2_smiles)
+        rxn = AllChem.ReactionFromSmarts('[C^3:1]([OH:2])[C^3:3][NH:4]>>[C^3:1]1[O:2][C^3:3]1.[N:4]') #The pattern is searched and reactants
+        reactants = unique_list_reactants(rxn.RunReactants((mol,)))#that could make it are returned as a list of lists; each list = reactive site
+        reactants_returned = [] #List of reactants that are going to be returned
+        opt = 1 #Parameter to count the number of possible reactants that form the 1,2 amino-alcohol
+        for r in reactants: #Reactants are displayed
+            print(f"Option {opt}")
+            reactant_1 = [r[0]]
+            reactant_2 = [r[1], NaNH2]
+            print(f"Reactant 1")
+            display(Draw.MolsToGridImage(reactant_1))
+            print(f"Reactant 2")
+            display(Draw.MolsToGridImage(reactant_2))
+            opt += 1
+            #The reactants corresponding to each reactive site are added in the list that is returned
+            reactants_returned.append(r[0])
+            reactants_returned.append(r[1])
+            reactants_returned.append(NaNH2)
             print (f"--------------------------------------")
         print (f"--------------------------------------")
         return [1, reactants_returned]
@@ -278,6 +585,70 @@ def alcohol_beta_double_bond (mol: Chem.rdchem.Mol) ->list:
             opt += 1
             print (f"--------------------------------------")
         print (f"--------------------------------------")
+        return [1, reactants_returned]
+    return [0]
+
+def grignard (mol: Chem.rdchem.Mol) ->list:
+    """
+    Verifies if an alcohol is present in the given molecule.
+
+    If the alcohol is present:
+    Identifies reactants that could form the alcohol, specifically a carbonyl compound
+    and an organomagnesian compound, usign THF as solvent (Grignard reaction).
+    Displays the reactants and solvent and returns 1 along with the list of reactants.
+
+    If the molecule has symmetry, the number of unique disconnections is reduced.
+
+    Parameters:
+    mol (Chem.rdchem.Mol): The molecule to be analyzed.
+
+    Returns:
+    list: [1, reactants_returned] if the pattern is found, where reactants_returned is a list of reactants.
+    [0] if the pattern is not found.
+
+    Raises:
+    TypeError: If the input is not a Chem.rdchem.Mol object.
+    """
+    # Validate input type
+    if not isinstance (mol, Chem.rdchem.Mol):
+        raise TypeError(
+            f"Invalid type :{type(mol)}: 'mol'"
+            f"Should be passed as a mol object."
+        )
+    if mol.HasSubstructMatch(Chem.MolFromSmarts('[C][C^3][OH]')): #Verifies if an alcohol is present
+        print (f"Grignard disconnection available")
+        print (f"--------------------------------------")
+        # Define SMILES for necessary compounds
+        Mg_smiles='[Mg]'
+        Br_smiles='Br'
+        O_smiles='O'
+        THF_smiles='C1CCOC1'
+        Mg = Chem.MolFromSmiles(Mg_smiles)
+        Br = Chem.MolFromSmiles(Br_smiles)
+        O = Chem.MolFromSmiles(O_smiles)
+        THF = Chem.MolFromSmiles(THF_smiles)
+        rxn = AllChem.ReactionFromSmarts('[C:1][C^3:2][O:3].[Mg:4].[Br:5]>>[C^2:2](=[O:3]).[C:1][Mg:4][Br:5]') #Searches for the alcohol and returns
+        reactants = unique_list_reactants(rxn.RunReactants((mol,Mg,Br))) #the reactants to make it in a list of lists; each list = reactive site
+        reactants_returned = [] #List of reactants that are going to be returned
+        opt = 1 #Parameter to count the number of possible reactants that form C(sp3 hybridized)-O bonds
+        for r in reactants: #Reactants and solvent are displayed
+            print(f"Option {opt}")
+            reactant_1 = [r[0]]
+            reactant_2 = [r[1]]
+            solvent = [THF]
+            print(f"Reactant 1")
+            display(Draw.MolsToGridImage(reactant_1))
+            print(f"Reactant 2")
+            display(Draw.MolsToGridImage(reactant_2))
+            print(f"Solvent")
+            display(Draw.MolsToGridImage(solvent))
+            opt += 1
+            #The reactants corresponding to each reactive site are added in the list that is returned
+            reactants_returned.append(r[0])
+            reactants_returned.append(r[1])
+            reactants_returned.append(THF)
+            print (f"--------------------------------------")
+        print(f"--------------------------------------")
         return [1, reactants_returned]
     return [0]
 
@@ -785,7 +1156,7 @@ def aldol (mol: Chem.rdchem.Mol) ->list:
         return [1, reactants_returned]
     return [0]
 
-def swern_oxidation (mol: Chem.rdchem.Mol) ->int :
+def swern_oxidation (mol: Chem.rdchem.Mol) ->list :
     """
     Checks for the presence of an aldehyde within a given molecule.
 
@@ -814,15 +1185,15 @@ def swern_oxidation (mol: Chem.rdchem.Mol) ->int :
             f"Invalid type :{type(mol)}: 'mol'"
             f"Should be passed as a mol object."
         )
-    if mol.HasSubstructMatch(Chem.MolFromSmarts('[CH]=[O]')):
+    if mol.HasSubstructMatch(Chem.MolFromSmarts('[CH]=[O]')): #Verifies if an aldehyde is present
         # Define SMILES for necessary compounds
         dmso = Chem.MolFromSmiles('CS(C)=O')
         et3n = Chem.MolFromSmiles('CCN(CC)CC')
         oxalyl_chloride = Chem.MolFromSmiles('ClC(=O)C(=O)Cl')
         print (f"Aldehyde disconnection spotted")
         print (f"--------------------------------------")
-        rxn = AllChem.ReactionFromSmarts('[CH:1]=[O:2]>>[C:1][O:2]')
-        reactants = unique_list_reactants(rxn.RunReactants((mol,)))
+        rxn = AllChem.ReactionFromSmarts('[CH:1]=[O:2]>>[C:1][O:2]')#The double bond from the pattern is disconnected and the reactants 
+        reactants = unique_list_reactants(rxn.RunReactants((mol,)))#are returned as a list of lists; each list = reactive site
         reactants_returned = [] #List of reactants that are going to be returned
         opt = 1
         for r in reactants:
@@ -841,7 +1212,7 @@ def swern_oxidation (mol: Chem.rdchem.Mol) ->int :
         return [1, reactants_returned]
     return [0]
             
-def disconnections (mol_smiles: str):
+def disconnections (mol_smiles: str) ->list:
     """
     This function takes the SMILES string of a molecule, displays the molecule,
     and identifies and displays all the known bond disconnections.
@@ -850,18 +1221,34 @@ def disconnections (mol_smiles: str):
     mol_smiles (str): The SMILES string of the molecule.
 
     Returns:
-    List[Chem.Mol]: A list of RDKit Mol objects representing the reactants
+    list: A list of RDKit Mol objects representing the reactants
     and synthesis intermediates resulting from the identified disconnections.
+
+    Raises:
+    TypeError: If the input is not a str.
+    ValueError: If the input is not a valid SMILE string.
     """
-    
+    # Validate input type in the case the input is not a string
+    if not isinstance(mol_smiles, str):
+        raise TypeError(
+            f"Invalid type :{type(mol_smiles)}: 'str'"
+            f"Should be passed as a mol object."
+        )
     mol = Chem.MolFromSmiles(mol_smiles) #Transforms SMILE in mol object
+
+    # Validate input type in the case the input is an invalid SMILES string
+    if mol is None:
+        raise ValueError("The provided SMILES string is not valid.")
+    
     print (f"The molecule inserted looks like this:")
     display(mol) #Displays the molecule
     print (f"--------------------------------------")
     print (f"--------------------------------------")
     sum = 0 #Parameter that keeps track of the number of the types of disconnections found in the molecule
     reactant_list = [] #List of Mol objects containing the reactants and synthesis intermediates 
-    known_disc = [C_S_disconnection, ester_disconnection, alcohol_beta_double_bond, alcohol_beta_triple_bond,
+    known_disc = [C_S_disconnection, C_O_disconnection, ester_disconnection, amide_disconnection, 
+                 acyl_chloride_disconnection, amine_disconnection, amino_alcohol_1_2, grignard,
+                 alcohol_beta_double_bond, alcohol_beta_triple_bond,
                  alpha_carbonyl_alkylation, dicarbonyl_1_3, aldol, swern_oxidation] #List of known disconnection
     for disc in known_disc: #It is searched if the compound contains a known disconnection
         reactant_list_temporary = disc(mol)
@@ -870,7 +1257,7 @@ def disconnections (mol_smiles: str):
         sum += reactant_list_temporary[0]
     if not sum: #In case no disconnection was found
         print(f"The molecule contains no known disconnections")
-        return 0
+        return []
     reactant_list = flatten_list(reactant_list) #This is performed as for each disconnection, a list of Mol objects is added to the initial list
     return reactant_list #Thus, a list containing only Mol objects is returned.
 

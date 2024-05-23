@@ -266,6 +266,24 @@
 <section id="module-chemicalbd.bond_disconnector">
 <span id="chemicalbd-bond-disconnector-module"></span><h2>chemicalbd.bond_disconnector module<a class="headerlink" href="#module-chemicalbd.bond_disconnector" title="Link to this heading">¶</a></h2>
 <dl class="py function">
+<dt class="sig sig-object py" id="chemicalbd.bond_disconnector.C_O_disconnection">
+<span class="sig-prename descclassname"><span class="pre">chemicalbd.bond_disconnector.</span></span><span class="sig-name descname"><span class="pre">C_O_disconnection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../_modules/chemicalbd/bond_disconnector.html#C_O_disconnection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chemicalbd.bond_disconnector.C_O_disconnection" title="Link to this definition">¶</a></dt>
+<dd><p>Verifies if an ether is present in the given molecule.</p>
+<p>If an ether is present:
+The function identifies reactants that could form this ether, specifically an alkyl iodide and an alcohol
+in the presence of sodium hydroxide.
+Displays the possible disconnections and returns 1 along with the list of reactants.</p>
+<p>Symmetry in the molecule reduces the number of unique disconnections.</p>
+<p>Parameters:
+mol (Chem.rdchem.Mol): The molecule to be analyzed.</p>
+<p>Returns:
+list: [1, reactants_returned] if an ether is found, where reactants_returned is a list of reactants.
+[0] if the bond is not found.</p>
+<p>Raises:
+TypeError: If the input is not a Chem.rdchem.Mol object.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="chemicalbd.bond_disconnector.C_S_disconnection">
 <span class="sig-prename descclassname"><span class="pre">chemicalbd.bond_disconnector.</span></span><span class="sig-name descname"><span class="pre">C_S_disconnection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../_modules/chemicalbd/bond_disconnector.html#C_S_disconnection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chemicalbd.bond_disconnector.C_S_disconnection" title="Link to this definition">¶</a></dt>
 <dd><p>Verifies if a C(sp3 hybridized)-S bond is present in the given molecule.</p>
@@ -280,6 +298,24 @@ mol (Chem.rdchem.Mol): The molecule to be analyzed.</p>
 <p>Returns:
 list: [1, reactants_returned] if a C(sp3)-S bond is found, where reactants_returned is a list of reactants.
 [0] if the bond is not found.</p>
+<p>Raises:
+TypeError: If the input is not a Chem.rdchem.Mol object.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chemicalbd.bond_disconnector.acyl_chloride_disconnection">
+<span class="sig-prename descclassname"><span class="pre">chemicalbd.bond_disconnector.</span></span><span class="sig-name descname"><span class="pre">acyl_chloride_disconnection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../_modules/chemicalbd/bond_disconnector.html#acyl_chloride_disconnection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chemicalbd.bond_disconnector.acyl_chloride_disconnection" title="Link to this definition">¶</a></dt>
+<dd><p>Verifies if an acyl chloride functional group is present in the given molecule.</p>
+<p>If an acyl chloride is present:
+Identifies reactants that could form the acyl chloride, specifically a carboxylic acid 
+and thionyl chloride.
+Displays the possible disconnections and returns 1 along with the list of reactants.</p>
+<p>If the molecule has symmetry, the number of unique disconnections is reduced.</p>
+<p>Parameters:
+mol (Chem.rdchem.Mol): The molecule to be analyzed.</p>
+<p>Returns:
+list: [1, reactants_returned] if the ester group is found, where reactants_returned is a list of reactants.
+[0] if the ester group is not found.</p>
 <p>Raises:
 TypeError: If the input is not a Chem.rdchem.Mol object.</p>
 </dd></dl>
@@ -420,6 +456,64 @@ TypeError: If the input is not a Chem.rdchem.Mol object.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="chemicalbd.bond_disconnector.amide_disconnection">
+<span class="sig-prename descclassname"><span class="pre">chemicalbd.bond_disconnector.</span></span><span class="sig-name descname"><span class="pre">amide_disconnection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../_modules/chemicalbd/bond_disconnector.html#amide_disconnection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chemicalbd.bond_disconnector.amide_disconnection" title="Link to this definition">¶</a></dt>
+<dd><p>Verifies if an amide functional group is present in the given molecule.</p>
+<p>If an amide is present:
+Identifies reactants that could form the amide, specifically an amine and an acyl chloride,
+in the presence of pyridine as a catalyst.
+Displays the possible disconnections and returns 1 along with the list of reactants.</p>
+<p>If the molecule has symmetry, the number of unique disconnections is reduced.</p>
+<p>Parameters:
+mol (Chem.rdchem.Mol): The molecule to be analyzed.</p>
+<p>Returns:
+list: [1, reactants_returned] if the ester group is found, where reactants_returned is a list of reactants.
+[0] if the ester group is not found.</p>
+<p>Raises:
+TypeError: If the input is not a Chem.rdchem.Mol object.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chemicalbd.bond_disconnector.amine_disconnection">
+<span class="sig-prename descclassname"><span class="pre">chemicalbd.bond_disconnector.</span></span><span class="sig-name descname"><span class="pre">amine_disconnection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../_modules/chemicalbd/bond_disconnector.html#amine_disconnection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chemicalbd.bond_disconnector.amine_disconnection" title="Link to this definition">¶</a></dt>
+<dd><p>Checks for the presence of an alkyl amine, subtituted with at least one C(sp3).</p>
+<p>If such a pattern is found:
+Identifies and displays reactants from which the pattern could be formed: a silyl enol ether and a carbonyl compound,
+with pyridine, also displayed, as a catalyst.
+Displays the reaction intermediate.
+Displays the reduction conditions of the intermediate.
+Ensures that, if the molecule has certain symmetry, the number of disconnections is reduced.
+Returns a list containing 1 and a list of the reactants, catalyst, intermediates and hydrogenation conditions.</p>
+<p>If the pattern is not present:
+Returns a list containing 0.</p>
+<p>Parameters:
+mol (Chem.rdchem.Mol): The molecule to be analyzed.</p>
+<p>Returns:
+list: [1, reactants_returned] if the pattern is found, where reactants_returned is a list of reactants.
+[0] if the pattern is not found.</p>
+<p>Raises:
+TypeError: If the input is not a Chem.rdchem.Mol object.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chemicalbd.bond_disconnector.amino_alcohol_1_2">
+<span class="sig-prename descclassname"><span class="pre">chemicalbd.bond_disconnector.</span></span><span class="sig-name descname"><span class="pre">amino_alcohol_1_2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../_modules/chemicalbd/bond_disconnector.html#amino_alcohol_1_2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chemicalbd.bond_disconnector.amino_alcohol_1_2" title="Link to this definition">¶</a></dt>
+<dd><p>Verifies if a pattern of a 1,2 amino alcohol is present in the given molecule.</p>
+<p>If the pattern is present:
+Identifies reactants that could form the pattern, specifically an amine in the presence
+of a strong base such as sodium amide and an epoxide.
+Displays the reactants and returns 1 along with the list of reactants.</p>
+<p>If the molecule has symmetry, the number of unique disconnections is reduced.</p>
+<p>Parameters:
+mol (Chem.rdchem.Mol): The molecule to be analyzed.</p>
+<p>Returns:
+list: [1, reactants_returned] if the pattern is found, where reactants_returned is a list of reactants.
+[0] if the pattern is not found.</p>
+<p>Raises:
+TypeError: If the input is not a Chem.rdchem.Mol object.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="chemicalbd.bond_disconnector.dicarbonyl_1_3">
 <span class="sig-prename descclassname"><span class="pre">chemicalbd.bond_disconnector.</span></span><span class="sig-name descname"><span class="pre">dicarbonyl_1_3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../_modules/chemicalbd/bond_disconnector.html#dicarbonyl_1_3"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chemicalbd.bond_disconnector.dicarbonyl_1_3" title="Link to this definition">¶</a></dt>
 <dd><p>Checks for the presence of a 1,3-dicarbonyl compound within a given molecule.</p>
@@ -442,14 +536,17 @@ TypeError: If the input is not a Chem.rdchem.Mol object.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="chemicalbd.bond_disconnector.disconnections">
-<span class="sig-prename descclassname"><span class="pre">chemicalbd.bond_disconnector.</span></span><span class="sig-name descname"><span class="pre">disconnections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol_smiles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/chemicalbd/bond_disconnector.html#disconnections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chemicalbd.bond_disconnector.disconnections" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">chemicalbd.bond_disconnector.</span></span><span class="sig-name descname"><span class="pre">disconnections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol_smiles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../_modules/chemicalbd/bond_disconnector.html#disconnections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chemicalbd.bond_disconnector.disconnections" title="Link to this definition">¶</a></dt>
 <dd><p>This function takes the SMILES string of a molecule, displays the molecule,
 and identifies and displays all the known bond disconnections.</p>
 <p>Parameters:
 mol_smiles (str): The SMILES string of the molecule.</p>
 <p>Returns:
-List[Chem.Mol]: A list of RDKit Mol objects representing the reactants
+list: A list of RDKit Mol objects representing the reactants
 and synthesis intermediates resulting from the identified disconnections.</p>
+<p>Raises:
+TypeError: If the input is not a str.
+ValueError: If the input is not a valid SMILE string.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -479,12 +576,31 @@ nested_list (list): The nested list to be flattened.</p>
 <p>Returns:
 list: A flattened list containing rdchem.Mol elements.</p>
 <p>Raises:
-TypeError: If nested_list is not a list.</p>
+TypeError: If nested_list is not a list, or if it contains other
+elements other than lists or rdchem.Mol</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chemicalbd.bond_disconnector.grignard">
+<span class="sig-prename descclassname"><span class="pre">chemicalbd.bond_disconnector.</span></span><span class="sig-name descname"><span class="pre">grignard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../_modules/chemicalbd/bond_disconnector.html#grignard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chemicalbd.bond_disconnector.grignard" title="Link to this definition">¶</a></dt>
+<dd><p>Verifies if an alcohol is present in the given molecule.</p>
+<p>If the alcohol is present:
+Identifies reactants that could form the alcohol, specifically a carbonyl compound
+and an organomagnesian compound, usign THF as solvent (Grignard reaction).
+Displays the reactants and solvent and returns 1 along with the list of reactants.</p>
+<p>If the molecule has symmetry, the number of unique disconnections is reduced.</p>
+<p>Parameters:
+mol (Chem.rdchem.Mol): The molecule to be analyzed.</p>
+<p>Returns:
+list: [1, reactants_returned] if the pattern is found, where reactants_returned is a list of reactants.
+[0] if the pattern is not found.</p>
+<p>Raises:
+TypeError: If the input is not a Chem.rdchem.Mol object.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="chemicalbd.bond_disconnector.swern_oxidation">
-<span class="sig-prename descclassname"><span class="pre">chemicalbd.bond_disconnector.</span></span><span class="sig-name descname"><span class="pre">swern_oxidation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../_modules/chemicalbd/bond_disconnector.html#swern_oxidation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chemicalbd.bond_disconnector.swern_oxidation" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">chemicalbd.bond_disconnector.</span></span><span class="sig-name descname"><span class="pre">swern_oxidation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../_modules/chemicalbd/bond_disconnector.html#swern_oxidation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chemicalbd.bond_disconnector.swern_oxidation" title="Link to this definition">¶</a></dt>
 <dd><p>Checks for the presence of an aldehyde within a given molecule.</p>
 <p>If an aldehyde is present:
 Identifies the reactants from which the aldehyde could be formed using the Swern oxidation:
@@ -572,7 +688,9 @@ TypeError: If the input is not a tuple of tuples of Mol objects.</p>
 <li><a class="reference internal" href="#">chemicalbd package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-chemicalbd.bond_disconnector">chemicalbd.bond_disconnector module</a><ul>
+<li><a class="reference internal" href="#chemicalbd.bond_disconnector.C_O_disconnection"><code class="docutils literal notranslate"><span class="pre">C_O_disconnection()</span></code></a></li>
 <li><a class="reference internal" href="#chemicalbd.bond_disconnector.C_S_disconnection"><code class="docutils literal notranslate"><span class="pre">C_S_disconnection()</span></code></a></li>
+<li><a class="reference internal" href="#chemicalbd.bond_disconnector.acyl_chloride_disconnection"><code class="docutils literal notranslate"><span class="pre">acyl_chloride_disconnection()</span></code></a></li>
 <li><a class="reference internal" href="#chemicalbd.bond_disconnector.alcohol_beta_double_bond"><code class="docutils literal notranslate"><span class="pre">alcohol_beta_double_bond()</span></code></a></li>
 <li><a class="reference internal" href="#chemicalbd.bond_disconnector.alcohol_beta_triple_bond"><code class="docutils literal notranslate"><span class="pre">alcohol_beta_triple_bond()</span></code></a></li>
 <li><a class="reference internal" href="#chemicalbd.bond_disconnector.aldol"><code class="docutils literal notranslate"><span class="pre">aldol()</span></code></a></li>
@@ -580,10 +698,14 @@ TypeError: If the input is not a tuple of tuples of Mol objects.</p>
 <li><a class="reference internal" href="#chemicalbd.bond_disconnector.alpha_dicarbonyl_alkylation"><code class="docutils literal notranslate"><span class="pre">alpha_dicarbonyl_alkylation()</span></code></a></li>
 <li><a class="reference internal" href="#chemicalbd.bond_disconnector.alpha_monocarbonyl_alkylation"><code class="docutils literal notranslate"><span class="pre">alpha_monocarbonyl_alkylation()</span></code></a></li>
 <li><a class="reference internal" href="#chemicalbd.bond_disconnector.alpha_monocarbonyl_alkylation_trisubstituted"><code class="docutils literal notranslate"><span class="pre">alpha_monocarbonyl_alkylation_trisubstituted()</span></code></a></li>
+<li><a class="reference internal" href="#chemicalbd.bond_disconnector.amide_disconnection"><code class="docutils literal notranslate"><span class="pre">amide_disconnection()</span></code></a></li>
+<li><a class="reference internal" href="#chemicalbd.bond_disconnector.amine_disconnection"><code class="docutils literal notranslate"><span class="pre">amine_disconnection()</span></code></a></li>
+<li><a class="reference internal" href="#chemicalbd.bond_disconnector.amino_alcohol_1_2"><code class="docutils literal notranslate"><span class="pre">amino_alcohol_1_2()</span></code></a></li>
 <li><a class="reference internal" href="#chemicalbd.bond_disconnector.dicarbonyl_1_3"><code class="docutils literal notranslate"><span class="pre">dicarbonyl_1_3()</span></code></a></li>
 <li><a class="reference internal" href="#chemicalbd.bond_disconnector.disconnections"><code class="docutils literal notranslate"><span class="pre">disconnections()</span></code></a></li>
 <li><a class="reference internal" href="#chemicalbd.bond_disconnector.ester_disconnection"><code class="docutils literal notranslate"><span class="pre">ester_disconnection()</span></code></a></li>
 <li><a class="reference internal" href="#chemicalbd.bond_disconnector.flatten_list"><code class="docutils literal notranslate"><span class="pre">flatten_list()</span></code></a></li>
+<li><a class="reference internal" href="#chemicalbd.bond_disconnector.grignard"><code class="docutils literal notranslate"><span class="pre">grignard()</span></code></a></li>
 <li><a class="reference internal" href="#chemicalbd.bond_disconnector.swern_oxidation"><code class="docutils literal notranslate"><span class="pre">swern_oxidation()</span></code></a></li>
 <li><a class="reference internal" href="#chemicalbd.bond_disconnector.unique_list_reactants"><code class="docutils literal notranslate"><span class="pre">unique_list_reactants()</span></code></a></li>
 </ul>
