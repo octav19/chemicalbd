@@ -31,6 +31,11 @@ def test_not_tuple ():
     with pytest.raises(TypeError):
         unique_list_reactants(list_of_tuples)
 
+def test_empty_tuple():
+    result = unique_list_reactants(())
+    assert result == []
+
+
 #Test in the case the functions receives an input that is a nested tuple, but contains elements other than tuples
 def test_not_all_tuple ():
     """
