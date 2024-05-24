@@ -404,7 +404,7 @@ def amine_disconnection (mol: Chem.rdchem.Mol) ->list:
             f"Invalid type :{type(mol)}: 'mol'"
             f"Should be passed as a mol object."
         )
-    if mol.HasSubstructMatch(Chem.MolFromSmarts('[C^3][N]')): #Verifies if the alkyl amine (containing at least one sp3 subtituent is present) 
+    if mol.HasSubstructMatch(Chem.MolFromSmarts('[CH2^3,CH3][N]')): #Verifies if the alkyl amine (containing at least one sp3 subtituent is present) 
         print (f"Amine disconnection available")
         print (f"--------------------------------------")
         # Define SMILES for necessary compounds
@@ -416,7 +416,7 @@ def amine_disconnection (mol: Chem.rdchem.Mol) ->list:
         chlorine = Chem.MolFromSmiles(chlorine_smiles)
         LiAlH4 = Chem.MolFromSmiles(LiAlH4_smiles)
         pyridine = Chem.MolFromSmiles(pyridine_smiles)
-        rxn = AllChem.ReactionFromSmarts('[N:1][C^3:2].[Cl:3].[O:4]>>[N:1].[C^2:2](=[O:4])[Cl:3]') #Searches for the bond pattern and returns reactants
+        rxn = AllChem.ReactionFromSmarts('[N:1][CH2^3,CH3:2].[Cl:3].[O:4]>>[N:1].[C^2:2](=[O:4])[Cl:3]') #Searches for the bond pattern and returns reactants
         reactants = unique_list_reactants(rxn.RunReactants((mol,chlorine,oxygen)))#to make the bond in a list of lists; each list = reactive site
         reactants_returned = [] #List of reactants that are going to be returned 
         opt = 1 #Parameter to count the number of possible reactants that form C(sp3 hybridized)-N bonds
