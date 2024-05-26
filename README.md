@@ -9,24 +9,30 @@ chemicalbd
 <br>
 
 
-A program that offers possible disconnections of chemical bonds
+A program that offers possible disconnections of chemical bonds/patterns in organic molecules.
+For the moment, the package offers disconnections for the chemical patterns: thiols, ethers, acyl chlorides, esters, amides, amines, alcohols, alcohols with
+double/triple bonds, aldehydes, alpha-beta unsaturated carbonyl compounds, 1,3 carbonyl compounds and alpha subtituted carbonyl compounds and 1,2 aminoalcohols.
+For the full documentation of the package, visit the site <a href="https://octav19.github.io/chemicalbd/.">
 
 ## 🔥 Usage
 
-```python
-from mypackage import main_func
+The package is destined for usage in jupyter lab.
+Open a jupyter notebook and import any of the functions of the package, as done in the example below.
 
-# One line to rule them all
-result = main_func(data)
+```python
+from chemicalbd.bond_disconnector import disconnections
+
+# This is the core function. If you are interested only in a specific disconnection
+# import another function, speciffic for that disconnection. 
+reactants_list = disconnections(data)
 ```
 
-This usage example shows how to quickly leverage the package's main functionality with just one line of code (or a few lines of code). 
-After importing the `main_func` (to be renamed by you), you simply pass in your `data` and get the `result` (this is just an example, your package might have other inputs and outputs). 
-Short and sweet, but the real power lies in the detailed documentation.
+By running such a cell (where data is a SMILES string), the possible disconnections are displayed automatically.
+reactants_list becomes a list of Mol objects containing the reactants for all the known disconnections.
 
 ## 👩‍💻 Installation
 
-Create a new environment, you may also give the environment a different name. 
+Create a new environment. In this example, the name used is chemicalbd 
 
 ```
 conda create -n chemicalbd python=3.10 
@@ -34,46 +40,31 @@ conda create -n chemicalbd python=3.10
 
 ```
 conda activate chemicalbd
-(conda_env) $ pip install .
-```
-
-If you need jupyter lab, install it 
 
 ```
-(chemicalbd) $ pip install jupyterlab
-```
 
-
-## 🛠️ Development installation
-
-Initialize Git (only for the first time). 
-
-Note: You should have create an empty repository on `https://github.com:octav19/chemicalbd`.
+Install jupyter lab, as the package is dedicated for usage in jupyter lab
 
 ```
-git init
-git add * 
-git add .*
-git commit -m "Initial commit" 
-git branch -M main
-git remote add origin git@github.com:octav19/chemicalbd.git 
-git push -u origin main
+(chemicalbd) pip install jupyterlab
 ```
 
-Then add and commit changes as usual. 
-
-To install the package, run
+In order to clone the repository on your local machine, run the following command:
 
 ```
-(chemicalbd) $ pip install -e ".[test,doc]"
+(chemicalbd) git clone https://github.com/octav19/chemicalbd.git
+
+```
+
+To install the package, run:
+
+```
+(chemicalbd) pip install -e ".[test,doc]"
 ```
 
 ### Run tests and coverage
 
 ```
-(conda_env) $ pip install tox
-(conda_env) $ tox
+(chemicalbd) pip install tox
+(chemicalbd) tox
 ```
-
-
-
