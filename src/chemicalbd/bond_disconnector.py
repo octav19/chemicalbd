@@ -984,7 +984,7 @@ def alpha_carbonyl_alkylation (mol: Chem.rdchem.Mol) ->list:
     #It is checked if the compound contains the pattern of carbonyl with alpha substituted carbon.
     #If so, the functions corresponding to each type of disconnection of carbonyl with alpha substituted
     #carbon are performed
-    if mol.HasSubstructMatch(Chem.MolFromSmarts('[C](=[O])[C^3][C]')):
+    if mol.HasSubstructMatch(Chem.MolFromSmarts('[C](=[O])[C^3][C^3]')):
         reactants_returned = [] #List of reactants that are going to be returned
         reactants_returned.append(alpha_dicarbonyl_alkylation(mol))
         reactants_returned.append(alpha_monocarbonyl_alkylation(mol))
