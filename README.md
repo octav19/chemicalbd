@@ -12,7 +12,7 @@ chemicalbd
 A program that offers possible disconnections of chemical bonds/patterns in organic molecules.
 For the moment, the package offers disconnections for the chemical patterns: thiols, ethers, acyl chlorides, esters, amides, amines, alcohols, alcohols with
 double/triple bonds, aldehydes, alpha-beta unsaturated carbonyl compounds, 1,3 carbonyl compounds and alpha subtituted carbonyl compounds and 1,2 aminoalcohols.
-For the full documentation of the package, visit the site <a href="https://octav19.github.io/chemicalbd/.">
+For the full documentation of the package, visit the site <a href="https://octav19.github.io/chemicalbd/">
 
 ## 🔥 Usage
 
@@ -40,7 +40,6 @@ conda create -n chemicalbd python=3.10
 
 ```
 conda activate chemicalbd
-
 ```
 
 Install jupyter lab, as the package is dedicated for usage in jupyter lab
@@ -53,7 +52,6 @@ In order to clone the repository on your local machine, run the following comman
 
 ```
 (chemicalbd) git clone https://github.com/octav19/chemicalbd.git
-
 ```
 
 To install the package, run:
