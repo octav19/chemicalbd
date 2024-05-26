@@ -12,7 +12,7 @@ chemicalbd
 A program that offers possible disconnections of chemical bonds/patterns in organic molecules.
 For the moment, the package offers disconnections for the chemical patterns: thiols, ethers, acyl chlorides, esters, amides, amines, alcohols, alcohols with
 double/triple bonds, aldehydes, alpha-beta unsaturated carbonyl compounds, 1,3 carbonyl compounds and alpha subtituted carbonyl compounds and 1,2 aminoalcohols.
-For the full documentation of the package, visit the site (https://octav19.github.io/chemicalbd/)
+For the full documentation of the package, visit the site https://octav19.github.io/chemicalbd/
 
 ## 🔥 Usage
 
