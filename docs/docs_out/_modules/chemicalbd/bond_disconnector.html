@@ -1285,7 +1285,7 @@
     <span class="c1">#It is checked if the compound contains the pattern of carbonyl with alpha substituted carbon.</span>
     <span class="c1">#If so, the functions corresponding to each type of disconnection of carbonyl with alpha substituted</span>
     <span class="c1">#carbon are performed</span>
-    <span class="k">if</span> <span class="n">mol</span><span class="o">.</span><span class="n">HasSubstructMatch</span><span class="p">(</span><span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmarts</span><span class="p">(</span><span class="s1">&#39;[C](=[O])[C^3][C]&#39;</span><span class="p">)):</span>
+    <span class="k">if</span> <span class="n">mol</span><span class="o">.</span><span class="n">HasSubstructMatch</span><span class="p">(</span><span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmarts</span><span class="p">(</span><span class="s1">&#39;[C](=[O])[C^3][C^3]&#39;</span><span class="p">)):</span>
         <span class="n">reactants_returned</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1">#List of reactants that are going to be returned</span>
         <span class="n">reactants_returned</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">alpha_dicarbonyl_alkylation</span><span class="p">(</span><span class="n">mol</span><span class="p">))</span>
         <span class="n">reactants_returned</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">alpha_monocarbonyl_alkylation</span><span class="p">(</span><span class="n">mol</span><span class="p">))</span>
